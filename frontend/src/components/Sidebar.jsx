@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 const MENU_ITEMS = [
   {
     id: "dashboard",
@@ -29,34 +31,62 @@ const MENU_ITEMS = [
   }
 ];
 
-function Sidebar() {
+function Sidebar({ activeItem, onItemSelect, isOpen, onClose }) {
   return (
-    <aside className="w-full rounded-3xl border border-white/20 bg-white/10 p-4 backdrop-blur-xl shadow-panel lg:w-72 lg:p-6">
+    <>
+      <div
+        className={`fixed inset-0 z-30 bg-slate-900/25 backdrop-blur-[1px] transition lg:hidden ${
+          isOpen ? "opacity-100" : "pointer-events-none opacity-0"
+        }`}
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 w-72 border-r border-white/70 bg-white/85 p-6 shadow-xl backdrop-blur-sm transition-transform duration-300 lg:translate-x-0 ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
       <div className="mb-8 flex items-center gap-3">
-        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-cyan-400/15 text-cyan-300 shadow-glow">
+        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-md">
           <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
             <path d="M4 12h16M8 8l-4 4 4 4m8-8 4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-white/60">AI Analyzer</p>
-          <h2 className="font-display text-lg font-semibold text-white">Control Panel</h2>
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Analyzer</p>
+          <h2 className="text-lg font-semibold text-slate-900">Control Panel</h2>
         </div>
       </div>
 
       <nav className="space-y-2">
         {MENU_ITEMS.map((item) => (
-          <button
+          <motion.button
             key={item.id}
             type="button"
-            className="group flex w-full items-center gap-3 rounded-xl border border-transparent bg-white/5 px-4 py-3 text-left text-sm text-slate-200 transition duration-300 hover:border-cyan-300/35 hover:bg-cyan-300/10 hover:text-cyan-200 hover:shadow-glow"
+            onClick={() => {
+              onItemSelect(item.id);
+              onClose();
+            }}
+            className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
+              activeItem === item.id
+                ? "border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 shadow-sm"
+                : "border-transparent text-slate-600 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
+            }`}
+            whileHover={{ x: 2 }}
           >
-            <span className="text-cyan-300/90 transition group-hover:text-cyan-200">{item.icon}</span>
-            <span className="font-medium tracking-wide">{item.label}</span>
-          </button>
+            <span className={`${activeItem === item.id ? "text-blue-600" : "text-slate-500"}`}>{item.icon}</span>
+            <span>{item.label}</span>
+          </motion.button>
         ))}
       </nav>
-    </aside>
+
+      <div className="mt-8 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-50 p-4">
+        <p className="text-xs uppercase tracking-[0.12em] text-blue-600">Tip</p>
+        <p className="mt-2 text-sm text-slate-600">Use role-specific keywords in your resume to improve match quality.</p>
+      </div>
+      </aside>
+    </>
   );
 }
 
