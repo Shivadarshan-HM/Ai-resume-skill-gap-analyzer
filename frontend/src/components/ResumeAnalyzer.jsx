@@ -6,7 +6,10 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
   const [file, setFile] = useState(null);
   const [role, setRole] = useState("");
   const [prompt, setPrompt] = useState("");
+<<<<<<< HEAD
   const [analysisOutput, setAnalysisOutput] = useState(null);
+=======
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -16,14 +19,20 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
 
     if (!file) {
       onAnalysisComplete?.(null);
+<<<<<<< HEAD
       setAnalysisOutput(null);
+=======
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
       setError("Please upload a resume file before analyzing.");
       return;
     }
 
     if (!role) {
       onAnalysisComplete?.(null);
+<<<<<<< HEAD
       setAnalysisOutput(null);
+=======
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
       setError("Please select a target role.");
       return;
     }
@@ -33,11 +42,17 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
 
     try {
       const data = await analyzeResumeUpload({ file, prompt, role });
+<<<<<<< HEAD
       setAnalysisOutput(data);
       onAnalysisComplete?.(data);
     } catch (apiError) {
       onAnalysisComplete?.(null);
       setAnalysisOutput(null);
+=======
+      onAnalysisComplete?.(data);
+    } catch (apiError) {
+      onAnalysisComplete?.(null);
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
       setError(apiError.message || "Unable to analyze the uploaded resume.");
     } finally {
       setLoading(false);
@@ -116,6 +131,7 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
           Generating AI analysis...
         </div>
       ) : null}
+<<<<<<< HEAD
 
       {analysisOutput ? (
         <motion.div
@@ -152,6 +168,8 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
           ) : null}
         </motion.div>
       ) : null}
+=======
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
     </motion.section>
   );
 }

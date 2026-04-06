@@ -1,6 +1,10 @@
 import { motion } from "framer-motion";
 
+<<<<<<< HEAD
 function Header({ title = "Dashboard", subtitle = "Analyze your resume and improve your skills", onMenuClick }) {
+=======
+function Header({ onMenuClick }) {
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
   return (
     <motion.header
       className="rounded-3xl border border-white/70 bg-white/75 p-5 shadow-lg backdrop-blur-sm sm:p-6"
@@ -22,8 +26,15 @@ function Header({ title = "Dashboard", subtitle = "Analyze your resume and impro
           </button>
 
           <div>
+<<<<<<< HEAD
             <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">{title}</h1>
             <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
+=======
+            <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Dashboard</h1>
+            <p className="mt-1 text-sm text-slate-500">
+              Analyze your resume and improve your skills
+            </p>
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
           </div>
         </div>
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BrowserRouter, Navigate, Route, Routes, useLocation } from "react-router-dom";
@@ -86,6 +87,12 @@ function App() {
       <RoutedApp />
     </BrowserRouter>
   );
+=======
+import Dashboard from "./components/Dashboard";
+
+function App() {
+  return <Dashboard />;
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
 }
 
 export default App;

@@ -1,9 +1,16 @@
 import { motion } from "framer-motion";
+<<<<<<< HEAD
 import { NavLink } from "react-router-dom";
 
 const MENU_ITEMS = [
   {
     to: "/dashboard",
+=======
+
+const MENU_ITEMS = [
+  {
+    id: "dashboard",
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
     label: "Dashboard",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -12,7 +19,11 @@ const MENU_ITEMS = [
     )
   },
   {
+<<<<<<< HEAD
     to: "/analyze",
+=======
+    id: "analyze",
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
     label: "Analyze Resume",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -22,6 +33,7 @@ const MENU_ITEMS = [
     )
   },
   {
+<<<<<<< HEAD
     to: "/chat",
     label: "AI Chat",
     icon: (
@@ -45,12 +57,23 @@ const MENU_ITEMS = [
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
         <path d="M4 18h16M7 14l3-3 2 2 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+=======
+    id: "results",
+    label: "Results",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+        <path d="M5 19V9m7 10V5m7 14v-7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
       </svg>
     )
   }
 ];
 
+<<<<<<< HEAD
 function Sidebar({ isOpen, onClose }) {
+=======
+function Sidebar({ activeItem, onItemSelect, isOpen, onClose }) {
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
   return (
     <>
       <div
@@ -80,6 +103,7 @@ function Sidebar({ isOpen, onClose }) {
 
       <nav className="space-y-2">
         {MENU_ITEMS.map((item) => (
+<<<<<<< HEAD
           <NavLink key={item.to} to={item.to} onClick={onClose}>
             {({ isActive }) => (
               <motion.div
@@ -95,6 +119,25 @@ function Sidebar({ isOpen, onClose }) {
               </motion.div>
             )}
           </NavLink>
+=======
+          <motion.button
+            key={item.id}
+            type="button"
+            onClick={() => {
+              onItemSelect(item.id);
+              onClose();
+            }}
+            className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
+              activeItem === item.id
+                ? "border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 shadow-sm"
+                : "border-transparent text-slate-600 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
+            }`}
+            whileHover={{ x: 2 }}
+          >
+            <span className={`${activeItem === item.id ? "text-blue-600" : "text-slate-500"}`}>{item.icon}</span>
+            <span>{item.label}</span>
+          </motion.button>
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
         ))}
       </nav>
 
