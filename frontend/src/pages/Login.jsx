@@ -81,11 +81,11 @@ function Login({ onLoginSuccess }) {
             {isRegister && step === 1 && (
               <form className="mt-8 space-y-4" onSubmit={handleSendOtp}>
                 <label className="block"><span className="mb-2 block text-xs font-medium text-slate-500">Full Name</span>
-                  <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Aditya Sharma" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
+                  <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="User_Name" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
                 <label className="block"><span className="mb-2 block text-xs font-medium text-slate-500">Email</span>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="aditya@gmail.com" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@gmail.com" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
                 <label className="block"><span className="mb-2 block text-xs font-medium text-slate-500">Password</span>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="**************" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
                 {error && <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
                 <motion.button type="submit" disabled={loading} className="h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-sm font-semibold text-white shadow-md disabled:opacity-70" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   {loading ? "Sending OTP..." : "Send OTP"}
@@ -109,9 +109,9 @@ function Login({ onLoginSuccess }) {
             {!isRegister && (
               <form className="mt-8 space-y-4" onSubmit={handleLogin}>
                 <label className="block"><span className="mb-2 block text-xs font-medium text-slate-500">Email</span>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="aditya@gmail.com" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@gmail.com" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
                 <label className="block"><span className="mb-2 block text-xs font-medium text-slate-500">Password</span>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="**************" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none focus:ring-2 focus:ring-blue-400" /></label>
                 {error && <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>}
                 {success && <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{success}</p>}
                 <motion.button type="submit" disabled={loading} className="h-12 w-full rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-sm font-semibold text-white shadow-md disabled:opacity-70" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
