@@ -1,8 +1,9 @@
 import { motion } from "framer-motion";
+import { NavLink } from "react-router-dom";
 
 const MENU_ITEMS = [
   {
-    id: "dashboard",
+    to: "/dashboard",
     label: "Dashboard",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -11,7 +12,7 @@ const MENU_ITEMS = [
     )
   },
   {
-    id: "analyze",
+    to: "/analyze",
     label: "Analyze Resume",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -21,7 +22,7 @@ const MENU_ITEMS = [
     )
   },
   {
-    id: "chat",
+    to: "/chat",
     label: "AI Chat",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -30,7 +31,7 @@ const MENU_ITEMS = [
     )
   },
   {
-    id: "job-match",
+    to: "/job-match",
     label: "Job Match",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -39,17 +40,17 @@ const MENU_ITEMS = [
     )
   },
   {
-    id: "settings",
-    label: "Settings",
+    to: "/ats",
+    label: "ATS Score",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
-        <path d="M12 15.5A3.5 3.5 0 1 0 12 8.5a3.5 3.5 0 0 0 0 7Zm7.4-3.5a7.8 7.8 0 0 0-.1-1l2-1.5-2-3.5-2.4 1a8 8 0 0 0-1.7-1l-.3-2.6h-4l-.3 2.6a8 8 0 0 0-1.7 1l-2.4-1-2 3.5 2 1.5a7.8 7.8 0 0 0 0 2l-2 1.5 2 3.5 2.4-1a8 8 0 0 0 1.7 1l.3 2.6h4l.3-2.6a8 8 0 0 0 1.7-1l2.4 1 2-3.5-2-1.5c.1-.3.1-.7.1-1Z" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" strokeLinejoin="round" />
+        <path d="M4 18h16M7 14l3-3 2 2 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     )
   }
 ];
 
-function Sidebar({ activeItem, onItemSelect, isOpen, onClose }) {
+function Sidebar({ isOpen, onClose }) {
   return (
     <>
       <div
@@ -79,23 +80,21 @@ function Sidebar({ activeItem, onItemSelect, isOpen, onClose }) {
 
       <nav className="space-y-2">
         {MENU_ITEMS.map((item) => (
-          <motion.button
-            key={item.id}
-            type="button"
-            onClick={() => {
-              onItemSelect(item.id);
-              onClose();
-            }}
-            className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
-              activeItem === item.id
-                ? "border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 shadow-sm"
-                : "border-transparent text-slate-600 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
-            }`}
-            whileHover={{ x: 2 }}
-          >
-            <span className={`${activeItem === item.id ? "text-blue-600" : "text-slate-500"}`}>{item.icon}</span>
-            <span>{item.label}</span>
-          </motion.button>
+          <NavLink key={item.to} to={item.to} onClick={onClose}>
+            {({ isActive }) => (
+              <motion.div
+                className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
+                  isActive
+                    ? "border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 shadow-sm"
+                    : "border-transparent text-slate-600 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
+                }`}
+                whileHover={{ x: 2 }}
+              >
+                <span className={`${isActive ? "text-blue-600" : "text-slate-500"}`}>{item.icon}</span>
+                <span>{item.label}</span>
+              </motion.div>
+            )}
+          </NavLink>
         ))}
       </nav>
 
