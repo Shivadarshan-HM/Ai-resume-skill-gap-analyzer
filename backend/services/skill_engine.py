@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 
-import anthropic
+from groq import Groq
 
 from utils.text_cleaner import clean_text
 
@@ -20,18 +20,18 @@ def _skill_exists_in_resume(skill: str, cleaned_resume: str) -> bool:
 
 
 def get_ai_suggestions(missing_skills: list, role: str) -> list:
-    """Claude se missing skills ke liye actionable suggestions lao."""
+    """Groq se missing skills ke liye actionable suggestions lao."""
     if not missing_skills:
         return []
 
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
         return [
             {"skill": s, "how_to_learn": f"Learn {s} via online courses.", "priority": "Medium"}
             for s in missing_skills
         ]
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = Groq(api_key=api_key)
     prompt = f"""You are a career advisor. A candidate applying for {role} is missing: {', '.join(missing_skills)}.
 
 Return ONLY a JSON array, no markdown:
@@ -40,12 +40,12 @@ Return ONLY a JSON array, no markdown:
 Be specific and practical. Prioritize by importance for {role}."""
 
     try:
-        msg = client.messages.create(
-            model="claude-opus-4-5",
+        response = client.chat.completions.create(
+            model="llama3-8b-8192",
             max_tokens=800,
             messages=[{"role": "user", "content": prompt}]
         )
-        text = msg.content[0].text.strip()
+        text = response.choices[0].message.content.strip()
         if "```" in text:
             text = text.split("```")[1].split("```")[0].replace("json", "").strip()
         return json.loads(text)
@@ -57,23 +57,23 @@ Be specific and practical. Prioritize by importance for {role}."""
 
 
 def get_ai_summary(role: str, match_score: float, found: list, missing: list) -> str:
-    """Claude se 2-line honest candidate assessment lao."""
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    """Groq se 2-line honest candidate assessment lao."""
+    api_key = os.environ.get("GROQ_API_KEY")
     if not api_key:
         return f"Candidate matches {match_score}% of required skills for {role}."
 
-    client = anthropic.Anthropic(api_key=api_key)
+    client = Groq(api_key=api_key)
     prompt = f"""In 2 sentences, give an honest assessment for {role}.
 Match: {match_score}% | Found: {', '.join(found) or 'None'} | Missing: {', '.join(missing) or 'None'}
 Be direct and helpful."""
 
     try:
-        msg = client.messages.create(
-            model="claude-opus-4-5",
+        response = client.chat.completions.create(
+            model="llama3-8b-8192",
             max_tokens=150,
             messages=[{"role": "user", "content": prompt}]
         )
-        return msg.content[0].text.strip()
+        return response.choices[0].message.content.strip()
     except Exception:
         return f"Candidate matches {match_score}% of required skills for {role}."
 
