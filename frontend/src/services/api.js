@@ -1,38 +1,75 @@
-const API_URL = "http://127.0.0.1:5000/analyze";
-const ANALYZE_UPLOAD_URL = "http://127.0.0.1:5000/analyze-resume";
+const BASE_URL = "http://127.0.0.1:5000";
 
-export async function analyzeResume(payload) {
-  const response = await fetch(API_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({}));
-    throw new Error(errorBody.error || "Failed to analyze resume.");
-  }
-
-  return response.json();
+function getToken() {
+  return localStorage.getItem("token");
 }
 
-export async function analyzeResumeUpload({ file, prompt, role }) {
+// Resume text analyze karo (text wala)
+export async function analyzeResume({ resume, role }) {
+  const res = await fetch(`${BASE_URL}/analyze`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: JSON.stringify({ resume, role }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Analysis failed.");
+  return data;
+}
+
+// Resume file upload karke analyze karo
+export async function analyzeResumeUpload({ file, role, prompt }) {
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("prompt", prompt || "");
-  formData.append("role", role || "");
+  formData.append("role", role);
+  if (prompt) formData.append("prompt", prompt);
 
-  const response = await fetch(ANALYZE_UPLOAD_URL, {
+  const res = await fetch(`${BASE_URL}/analyze-upload`, {
     method: "POST",
-    body: formData
+    headers: {
+      Authorization: `Bearer ${getToken()}`,
+    },
+    body: formData,
   });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Upload analysis failed.");
+  return data;
+}
 
-  if (!response.ok) {
-    const errorBody = await response.json().catch(() => ({}));
-    throw new Error(errorBody.error || "Failed to analyze uploaded resume.");
-  }
+// Register
+export async function register({ fullName, email, password }) {
+  const res = await fetch(`${BASE_URL}/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ fullName, email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Registration failed.");
+  return data;
+}
 
-  return response.json();
+// Login
+export async function login({ email, password }) {
+  const res = await fetch(`${BASE_URL}/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Login failed.");
+  return data;
+}
+
+// Verify OTP
+export async function verifyOtp({ email, otp }) {
+  const res = await fetch(`${BASE_URL}/verify-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "OTP verification failed.");
+  return data;
 }

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import ATSCard from "./ATSCard";
 import ChatAssistant from "./ChatAssistant";
-import Header from "./Header";
 import JobMatch from "./JobMatch";
 import ResumeAnalyzer from "./ResumeAnalyzer";
 import Sidebar from "./Sidebar";
@@ -15,10 +14,14 @@ const ROLE_OPTIONS = [
   "Full Stack Developer"
 ];
 
-function Dashboard() {
+function Dashboard({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [analysisData, setAnalysisData] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
+
+  const initials = user?.full_name
+    ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#f7fbff_0%,#eef3f8_40%,#e8f3ff_100%)]">
@@ -26,8 +29,57 @@ function Dashboard() {
 
       <div className="lg:pl-72">
         <main className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
-          <Header onMenuClick={() => setSidebarOpen(true)} />
 
+          {/* Header */}
+          <motion.header
+            className="rounded-3xl border border-white/70 bg-white/75 p-5 shadow-lg backdrop-blur-sm sm:p-6"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.45 }}
+          >
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setSidebarOpen(true)}
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-slate-600 transition hover:bg-gray-50 lg:hidden"
+                >
+                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
+                    <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                  </svg>
+                </button>
+                <div>
+                  <h1 className="text-2xl font-semibold tracking-tight text-slate-900">
+                    Welcome, {user?.full_name?.split(" ")[0] || "User"} 👋
+                  </h1>
+                  <p className="mt-1 text-sm text-slate-500">Analyze your resume and improve your skills</p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                {/* User avatar + logout */}
+                <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
+                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-xs font-semibold text-white">
+                    {initials}
+                  </span>
+                  <div className="hidden sm:block">
+                    <p className="text-sm font-medium text-slate-800">{user?.full_name || "User"}</p>
+                    <p className="text-xs text-slate-500">{user?.email || ""}</p>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={onLogout}
+                  className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-red-50 hover:text-red-600 hover:border-red-200"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </motion.header>
+
+          {/* Main content */}
           <motion.div
             className="space-y-6"
             initial={{ opacity: 0 }}
@@ -39,15 +91,12 @@ function Dashboard() {
               onAnalysisComplete={setAnalysisData}
               onLoadingChange={setAnalysisLoading}
             />
-
             <ChatAssistant analysisData={analysisData} />
-
             <ATSCard analysisData={analysisData} loading={analysisLoading} />
-
             <JobMatch analysisData={analysisData} />
-
             <SkillRoadmap analysisData={analysisData} />
           </motion.div>
+
         </main>
       </div>
     </div>
