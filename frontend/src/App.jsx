@@ -45,13 +45,14 @@ function App() {
           }
         />
         <Route
-          path="/dashboard"
+          path="/dashboard/*"
           element={
             user
               ? <Dashboard user={user} onLogout={handleLogout} />
               : <Navigate to="/login" replace />
           }
         />
+        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
       </Routes>
     </BrowserRouter>

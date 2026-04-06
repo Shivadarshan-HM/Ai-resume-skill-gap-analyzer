@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import ATSCard from "./ATSCard";
 import ChatAssistant from "./ChatAssistant";
 import JobMatch from "./JobMatch";
@@ -18,10 +19,81 @@ function Dashboard({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [analysisData, setAnalysisData] = useState(null);
   const [analysisLoading, setAnalysisLoading] = useState(false);
+  const location = useLocation();
 
   const initials = user?.full_name
     ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "U";
+
+  // Determine which component to show based on current path
+  const renderContent = () => {
+    if (location.pathname === "/dashboard" || location.pathname === "/dashboard/") {
+      return (
+        <motion.div
+          className="space-y-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.45 }}
+        >
+          <ResumeAnalyzer
+            roles={ROLE_OPTIONS}
+            onAnalysisComplete={setAnalysisData}
+            onLoadingChange={setAnalysisLoading}
+          />
+          <ChatAssistant analysisData={analysisData} />
+          <ATSCard analysisData={analysisData} loading={analysisLoading} />
+          <JobMatch analysisData={analysisData} />
+          <SkillRoadmap analysisData={analysisData} />
+        </motion.div>
+      );
+    } else if (location.pathname === "/dashboard/analyze") {
+      return (
+        <motion.div
+          className="space-y-6"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.45 }}
+        >
+          <ResumeAnalyzer
+            roles={ROLE_OPTIONS}
+            onAnalysisComplete={setAnalysisData}
+            onLoadingChange={setAnalysisLoading}
+          />
+        </motion.div>
+      );
+    } else if (location.pathname === "/dashboard/chat") {
+      return (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.45 }}
+        >
+          <ChatAssistant analysisData={analysisData} />
+        </motion.div>
+      );
+    } else if (location.pathname === "/dashboard/ats") {
+      return (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.45 }}
+        >
+          <ATSCard analysisData={analysisData} loading={analysisLoading} />
+        </motion.div>
+      );
+    } else if (location.pathname === "/dashboard/job-match") {
+      return (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.45 }}
+        >
+          <JobMatch analysisData={analysisData} />
+        </motion.div>
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#f7fbff_0%,#eef3f8_40%,#e8f3ff_100%)]">
@@ -80,22 +152,7 @@ function Dashboard({ user, onLogout }) {
           </motion.header>
 
           {/* Main content */}
-          <motion.div
-            className="space-y-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.45 }}
-          >
-            <ResumeAnalyzer
-              roles={ROLE_OPTIONS}
-              onAnalysisComplete={setAnalysisData}
-              onLoadingChange={setAnalysisLoading}
-            />
-            <ChatAssistant analysisData={analysisData} />
-            <ATSCard analysisData={analysisData} loading={analysisLoading} />
-            <JobMatch analysisData={analysisData} />
-            <SkillRoadmap analysisData={analysisData} />
-          </motion.div>
+          {renderContent()}
 
         </main>
       </div>
