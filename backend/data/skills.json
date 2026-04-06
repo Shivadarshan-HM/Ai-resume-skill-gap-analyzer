@@ -1,0 +1,42 @@
+{
+  "Frontend Developer": [
+    "React",
+    "JavaScript",
+    "TypeScript",
+    "HTML",
+    "CSS",
+    "Redux",
+    "REST API",
+    "Git"
+  ],
+  "Backend Developer": [
+    "Python",
+    "Flask",
+    "Django",
+    "SQL",
+    "REST API",
+    "Docker",
+    "Git",
+    "Unit Testing"
+  ],
+  "Data Scientist": [
+    "Python",
+    "Pandas",
+    "NumPy",
+    "Scikit-learn",
+    "Machine Learning",
+    "Data Visualization",
+    "SQL",
+    "Statistics"
+  ],
+  "Full Stack Developer": [
+    "React",
+    "JavaScript",
+    "Node.js",
+    "Python",
+    "Flask",
+    "SQL",
+    "REST API",
+    "Git"
+  ]
+}
