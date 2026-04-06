@@ -6,6 +6,10 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
   const [file, setFile] = useState(null);
   const [role, setRole] = useState("");
   const [prompt, setPrompt] = useState("");
+<<<<<<< HEAD
+  const [analysisOutput, setAnalysisOutput] = useState(null);
+=======
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -15,12 +19,20 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
 
     if (!file) {
       onAnalysisComplete?.(null);
+<<<<<<< HEAD
+      setAnalysisOutput(null);
+=======
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
       setError("Please upload a resume file before analyzing.");
       return;
     }
 
     if (!role) {
       onAnalysisComplete?.(null);
+<<<<<<< HEAD
+      setAnalysisOutput(null);
+=======
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
       setError("Please select a target role.");
       return;
     }
@@ -30,9 +42,17 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
 
     try {
       const data = await analyzeResumeUpload({ file, prompt, role });
+<<<<<<< HEAD
+      setAnalysisOutput(data);
       onAnalysisComplete?.(data);
     } catch (apiError) {
       onAnalysisComplete?.(null);
+      setAnalysisOutput(null);
+=======
+      onAnalysisComplete?.(data);
+    } catch (apiError) {
+      onAnalysisComplete?.(null);
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
       setError(apiError.message || "Unable to analyze the uploaded resume.");
     } finally {
       setLoading(false);
@@ -111,6 +131,45 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
           Generating AI analysis...
         </div>
       ) : null}
+<<<<<<< HEAD
+
+      {analysisOutput ? (
+        <motion.div
+          className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35 }}
+        >
+          <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">AI Response</h4>
+          <p className="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">{analysisOutput.analysis}</p>
+
+          {analysisOutput.highlighted_skills?.length ? (
+            <div className="mt-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-emerald-700">Skill Insights</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {analysisOutput.highlighted_skills.map((skill) => (
+                  <span key={skill} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                    {skill}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {analysisOutput.suggestions?.length ? (
+            <div className="mt-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-blue-700">Suggestions</p>
+              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
+                {analysisOutput.suggestions.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </div>
+          ) : null}
+        </motion.div>
+      ) : null}
+=======
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
     </motion.section>
   );
 }

@@ -1,4 +1,9 @@
 Flask==3.0.3
 Flask-Cors==4.0.1
+<<<<<<< HEAD
+pypdf==4.2.0
+python-docx==1.1.2
+=======
 groq
 python-dotenv
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce

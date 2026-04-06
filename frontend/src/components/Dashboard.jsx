@@ -1,10 +1,20 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
+<<<<<<< HEAD
+import ATSCard from "./ATSCard";
+import ChatAssistant from "./ChatAssistant";
+import Header from "./Header";
+import JobMatch from "./JobMatch";
+import ResumeAnalyzer from "./ResumeAnalyzer";
+import Sidebar from "./Sidebar";
+import SkillRoadmap from "./SkillRoadmap";
+=======
 import Header from "./Header";
 import ResumeAnalyzer from "./ResumeAnalyzer";
 import ResultCard from "./ResultCard";
 import Sidebar from "./Sidebar";
 import StatsCard from "./StatsCard";
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
 
 const ROLE_OPTIONS = [
   "Frontend Developer",
@@ -16,6 +26,10 @@ const ROLE_OPTIONS = [
 function Dashboard() {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+<<<<<<< HEAD
+  const [analysisData, setAnalysisData] = useState(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
+=======
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -26,6 +40,7 @@ function Dashboard() {
     result?.missing_skills?.length > 0
       ? result.missing_skills
       : ["System Design", "Communication", "Cloud Fundamentals"];
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
 
   return (
     <div className="min-h-screen bg-[linear-gradient(135deg,#f7fbff_0%,#eef3f8_40%,#e8f3ff_100%)]">
@@ -40,6 +55,28 @@ function Dashboard() {
         <main className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
           <Header onMenuClick={() => setSidebarOpen(true)} />
 
+<<<<<<< HEAD
+          <motion.div
+            className="space-y-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.45 }}
+          >
+            <ResumeAnalyzer
+              roles={ROLE_OPTIONS}
+              onAnalysisComplete={setAnalysisData}
+              onLoadingChange={setAnalysisLoading}
+            />
+
+            <ChatAssistant analysisData={analysisData} />
+
+            <ATSCard analysisData={analysisData} loading={analysisLoading} />
+
+            <JobMatch analysisData={analysisData} />
+
+            <SkillRoadmap analysisData={analysisData} />
+          </motion.div>
+=======
           <div className="grid gap-4 sm:grid-cols-3">
             <StatsCard label="Match Score" value={`${matchScore}%`} hint="Current role fit" tone="blue" delay={0.05} />
             <StatsCard label="Skills Found" value={foundSkillsCount} hint="Detected in resume" tone="green" delay={0.1} />
@@ -82,6 +119,7 @@ function Dashboard() {
               </ul>
             </motion.aside>
           </div>
+>>>>>>> 13d3aa9e89695d3a8984b6cb3b493772e9f3c1ce
         </main>
       </div>
     </div>
