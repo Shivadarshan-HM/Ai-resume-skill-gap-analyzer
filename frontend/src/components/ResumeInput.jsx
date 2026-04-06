@@ -1,3 +1,5 @@
+import { motion } from "framer-motion";
+
 function ResumeInput({
   resume,
   role,
@@ -9,10 +11,15 @@ function ResumeInput({
   onSubmit
 }) {
   return (
-    <section className="rounded-3xl border border-white/20 bg-white/10 p-5 backdrop-blur-xl shadow-panel lg:p-7">
+    <motion.section
+      className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm lg:p-7"
+      initial={{ opacity: 0, y: 22 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, delay: 0.1 }}
+    >
       <form className="space-y-5" onSubmit={onSubmit}>
         <div className="space-y-2">
-          <label htmlFor="resumeInput" className="text-sm font-medium text-slate-200">
+          <label htmlFor="resumeInput" className="text-sm font-medium text-slate-700">
             Resume Content
           </label>
           <textarea
@@ -21,20 +28,20 @@ function ResumeInput({
             onChange={(event) => onResumeChange(event.target.value)}
             placeholder="Paste your resume summary, projects, and key skills here..."
             rows={8}
-            className="w-full resize-y rounded-2xl border border-white/20 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 outline-none transition duration-300 placeholder:text-slate-400 focus:border-cyan-300/70 focus:ring-2 focus:ring-cyan-300/30"
+            className="w-full resize-y rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 placeholder:text-slate-400 focus:border-blue-300 focus:ring-2 focus:ring-blue-300/70"
           />
         </div>
 
         <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="space-y-2">
-            <label htmlFor="roleSelect" className="text-sm font-medium text-slate-200">
+            <label htmlFor="roleSelect" className="text-sm font-medium text-slate-700">
               Target Role
             </label>
             <select
               id="roleSelect"
               value={role}
               onChange={(event) => onRoleChange(event.target.value)}
-              className="w-full rounded-2xl border border-white/20 bg-slate-900/60 px-4 py-3 text-sm text-slate-100 outline-none transition duration-300 focus:border-fuchsia-300/70 focus:ring-2 focus:ring-fuchsia-300/30"
+              className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 focus:border-blue-300 focus:ring-2 focus:ring-blue-300/70"
             >
               <option value="">Choose a role</option>
               {roles.map((roleName) => (
@@ -45,22 +52,24 @@ function ResumeInput({
             </select>
           </div>
 
-          <button
+          <motion.button
             type="submit"
             disabled={loading}
-            className="h-12 rounded-2xl border border-cyan-300/50 bg-cyan-300/20 px-8 text-sm font-semibold tracking-wide text-cyan-100 transition duration-300 hover:-translate-y-0.5 hover:bg-cyan-300/30 hover:shadow-glow disabled:cursor-not-allowed disabled:opacity-70"
+            className="h-12 rounded-2xl bg-gradient-to-r from-blue-600 to-cyan-500 px-8 text-sm font-semibold tracking-wide text-white shadow-md transition duration-300 disabled:cursor-not-allowed disabled:opacity-70"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.97 }}
           >
             {loading ? "Analyzing..." : "Analyze Resume"}
-          </button>
+          </motion.button>
         </div>
 
         {error ? (
-          <p className="rounded-xl border border-rose-300/35 bg-rose-400/10 px-3 py-2 text-sm text-rose-100">
+          <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
             {error}
           </p>
         ) : null}
       </form>
-    </section>
+    </motion.section>
   );
 }
 
