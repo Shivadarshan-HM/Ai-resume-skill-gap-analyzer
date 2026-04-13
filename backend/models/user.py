@@ -1,5 +1,6 @@
 from database import db
 import bcrypt
+from datetime import datetime
 
 
 class User(db.Model):
@@ -27,3 +28,13 @@ class User(db.Model):
             "full_name": self.full_name,
             "email": self.email,
         }
+
+
+class OTPRecord(db.Model):
+    __tablename__ = "otp_records"
+
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), nullable=False, index=True)
+    otp = db.Column(db.String(6), nullable=False)
+    expiry = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

@@ -5,19 +5,26 @@ from flask_mail import Mail, Message
 
 mail = Mail()
 
-# OTP store karne ke liye (production mein Redis use karo)
-otp_store = {}
-
 
 def generate_otp() -> str:
     return "".join(random.choices(string.digits, k=6))
 
 
 def send_otp_email(email: str) -> bool:
-    """Email pe OTP bhejo, True return karo agar success."""
+    """Email pe OTP bhejo aur database mein save karo."""
+    from database import db
+    from models.user import OTPRecord
+
     otp = generate_otp()
     expiry = datetime.utcnow() + timedelta(minutes=10)
-    otp_store[email] = {"otp": otp, "expiry": expiry}
+
+    # Purane OTP delete karo iss email ke liye
+    OTPRecord.query.filter_by(email=email).delete()
+
+    # Naya OTP database mein save karo
+    record = OTPRecord(email=email, otp=otp, expiry=expiry)
+    db.session.add(record)
+    db.session.commit()
 
     try:
         msg = Message(
@@ -43,14 +50,24 @@ If you did not request this, please ignore this email.
 
 
 def verify_otp(email: str, otp: str) -> bool:
-    """OTP verify karo — sahi hai aur expire nahi hua?"""
-    record = otp_store.get(email)
+    """Database se OTP verify karo."""
+    from database import db
+    from models.user import OTPRecord
+
+    record = OTPRecord.query.filter_by(email=email).order_by(OTPRecord.created_at.desc()).first()
+
     if not record:
         return False
-    if datetime.utcnow() > record["expiry"]:
-        otp_store.pop(email, None)
+
+    if datetime.utcnow() > record.expiry:
+        OTPRecord.query.filter_by(email=email).delete()
+        db.session.commit()
         return False
-    if record["otp"] != otp:
+
+    if record.otp != otp:
         return False
-    otp_store.pop(email, None)
+
+    # Verify hone ke baad delete karo
+    OTPRecord.query.filter_by(email=email).delete()
+    db.session.commit()
     return True
