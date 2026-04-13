@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import ATSCard from "./ATSCard";
 import ChatAssistant from "./ChatAssistant";
 import JobMatch from "./JobMatch";
@@ -16,7 +16,7 @@ const ROLE_OPTIONS = [
   "Full Stack Developer"
 ];
 
-function DashboardHome({ analysisData, analysisLoading, setAnalysisData, setAnalysisLoading }) {
+function DashboardHome({ analysisData }) {
   return (
     <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
       <motion.section
@@ -25,7 +25,7 @@ function DashboardHome({ analysisData, analysisLoading, setAnalysisData, setAnal
         animate={{ opacity: 1, y: 0 }}
       >
         <p className="text-sm text-slate-600">
-          Welcome to your AI resume workspace. Use the sidebar to run deep analysis, compare jobs, and improve your ATS readiness.
+          Welcome to your AI resume workspace. Go to <strong>Analyze Resume</strong> to upload your resume, then come back here to see your results!
         </p>
       </motion.section>
 
@@ -40,10 +40,8 @@ function DashboardHome({ analysisData, analysisLoading, setAnalysisData, setAnal
   );
 }
 
-function Dashboard({ user, onLogout }) {
+function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoading, setAnalysisLoading }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [analysisData, setAnalysisData] = useState(null);
-  const [analysisLoading, setAnalysisLoading] = useState(false);
   const location = useLocation();
 
   const initials = user?.full_name
@@ -54,12 +52,16 @@ function Dashboard({ user, onLogout }) {
     const path = location.pathname;
 
     if (path === "/dashboard" || path === "/dashboard/") {
-      return <DashboardHome analysisData={analysisData} analysisLoading={analysisLoading} setAnalysisData={setAnalysisData} setAnalysisLoading={setAnalysisLoading} />;
+      return <DashboardHome analysisData={analysisData} />;
     }
     if (path === "/analyze") {
       return (
         <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
-          <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={setAnalysisData} onLoadingChange={setAnalysisLoading} />
+          <ResumeAnalyzer
+            roles={ROLE_OPTIONS}
+            onAnalysisComplete={setAnalysisData}
+            onLoadingChange={setAnalysisLoading}
+          />
         </motion.div>
       );
     }
@@ -94,7 +96,6 @@ function Dashboard({ user, onLogout }) {
       <div className="lg:pl-72">
         <main className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
 
-          {/* Header */}
           <motion.header
             className="rounded-3xl border border-white/70 bg-white/75 p-5 shadow-lg backdrop-blur-sm sm:p-6"
             initial={{ opacity: 0, y: 18 }}
