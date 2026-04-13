@@ -60,48 +60,47 @@ function Sidebar({ isOpen, onClose }) {
         onClick={onClose}
         aria-hidden="true"
       />
-
       <aside
         className={`fixed inset-y-0 left-0 z-40 w-72 border-r border-white/70 bg-white/85 p-6 shadow-xl backdrop-blur-sm transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-      <div className="mb-8 flex items-center gap-3">
-        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-md">
-          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
-            <path d="M4 12h16M8 8l-4 4 4 4m8-8 4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
+        <div className="mb-8 flex items-center gap-3">
+          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-md">
+            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
+              <path d="M4 12h16M8 8l-4 4 4 4m8-8 4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Analyzer</p>
+            <h2 className="text-lg font-semibold text-slate-900">Control Panel</h2>
+          </div>
         </div>
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Analyzer</p>
-          <h2 className="text-lg font-semibold text-slate-900">Control Panel</h2>
+
+        <nav className="space-y-2">
+          {MENU_ITEMS.map((item) => (
+            <NavLink key={item.to} to={item.to} onClick={onClose} end={item.to === "/dashboard"}>
+              {({ isActive }) => (
+                <motion.div
+                  className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
+                    isActive
+                      ? "border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 shadow-sm"
+                      : "border-transparent text-slate-600 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
+                  }`}
+                  whileHover={{ x: 2 }}
+                >
+                  <span className={`${isActive ? "text-blue-600" : "text-slate-500"}`}>{item.icon}</span>
+                  <span>{item.label}</span>
+                </motion.div>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="mt-8 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-50 p-4">
+          <p className="text-xs uppercase tracking-[0.12em] text-blue-600">Tip</p>
+          <p className="mt-2 text-sm text-slate-600">Use role-specific keywords in your resume to improve match quality.</p>
         </div>
-      </div>
-
-      <nav className="space-y-2">
-        {MENU_ITEMS.map((item) => (
-          <NavLink key={item.to} to={item.to} onClick={onClose}>
-            {({ isActive }) => (
-              <motion.div
-                className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
-                  isActive
-                    ? "border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 shadow-sm"
-                    : "border-transparent text-slate-600 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
-                }`}
-                whileHover={{ x: 2 }}
-              >
-                <span className={`${isActive ? "text-blue-600" : "text-slate-500"}`}>{item.icon}</span>
-                <span>{item.label}</span>
-              </motion.div>
-            )}
-          </NavLink>
-        ))}
-      </nav>
-
-      <div className="mt-8 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-50 p-4">
-        <p className="text-xs uppercase tracking-[0.12em] text-blue-600">Tip</p>
-        <p className="mt-2 text-sm text-slate-600">Use role-specific keywords in your resume to improve match quality.</p>
-      </div>
       </aside>
     </>
   );

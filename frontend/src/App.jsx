@@ -38,20 +38,31 @@ function App() {
       <Routes>
         <Route
           path="/login"
-          element={
-            user
-              ? <Navigate to="/dashboard" replace />
-              : <Login onLoginSuccess={handleLoginSuccess} />
-          }
+          element={user ? <Navigate to="/dashboard" replace /> : <Login onLoginSuccess={handleLoginSuccess} />}
+        />
+
+        {/* Ye saare routes Dashboard component ke andar handle honge */}
+        <Route
+          path="/dashboard"
+          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
         <Route
-          path="/dashboard/*"
-          element={
-            user
-              ? <Dashboard user={user} onLogout={handleLogout} />
-              : <Navigate to="/login" replace />
-          }
+          path="/analyze"
+          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
+        <Route
+          path="/chat"
+          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/job-match"
+          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+        />
+        <Route
+          path="/ats"
+          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+        />
+
         <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
       </Routes>

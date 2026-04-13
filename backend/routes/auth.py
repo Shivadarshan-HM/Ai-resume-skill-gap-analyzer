@@ -9,7 +9,6 @@ auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
 
 @auth_bp.post("/send-otp")
 def send_otp():
-    """Register karne se pehle OTP bhejo."""
     payload = request.get_json(silent=True) or {}
     email = payload.get("email", "").strip().lower()
 
@@ -28,7 +27,6 @@ def send_otp():
 
 @auth_bp.post("/register")
 def register():
-    """OTP verify karo aur account banao."""
     payload = request.get_json(silent=True) or {}
     full_name = payload.get("full_name", "").strip()
     email = payload.get("email", "").strip().lower()
@@ -53,12 +51,7 @@ def register():
     db.session.commit()
 
     token = create_access_token(identity=str(user.id))
-
-    return jsonify({
-        "message": "Account created successfully.",
-        "token": token,
-        "user": user.to_dict()
-    }), 201
+    return jsonify({"message": "Account created successfully.", "token": token, "user": user.to_dict()}), 201
 
 
 @auth_bp.post("/login")
@@ -71,17 +64,73 @@ def login():
         return jsonify({"error": "Email and password are required."}), 400
 
     user = User.query.filter_by(email=email).first()
-
     if not user or not user.check_password(password):
         return jsonify({"error": "Invalid email or password."}), 401
 
     token = create_access_token(identity=str(user.id))
+    return jsonify({"message": "Login successful.", "token": token, "user": user.to_dict()}), 200
 
-    return jsonify({
-        "message": "Login successful.",
-        "token": token,
-        "user": user.to_dict()
-    }), 200
+
+@auth_bp.post("/forgot-password/send-otp")
+def forgot_send_otp():
+    """Forgot password ke liye OTP bhejo."""
+    payload = request.get_json(silent=True) or {}
+    email = payload.get("email", "").strip().lower()
+
+    if not email:
+        return jsonify({"error": "Email is required."}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "No account found with this email."}), 404
+
+    success = send_otp_email(email)
+    if not success:
+        return jsonify({"error": "Failed to send OTP. Check email config."}), 500
+
+    return jsonify({"message": "OTP sent to your email."}), 200
+
+
+@auth_bp.post("/forgot-password/verify-otp")
+def forgot_verify_otp():
+    """OTP verify karo — reset token return karo."""
+    payload = request.get_json(silent=True) or {}
+    email = payload.get("email", "").strip().lower()
+    otp = payload.get("otp", "").strip()
+
+    if not email or not otp:
+        return jsonify({"error": "Email and OTP are required."}), 400
+
+    if not verify_otp(email, otp):
+        return jsonify({"error": "Invalid or expired OTP."}), 400
+
+    # Temporary reset token banao
+    reset_token = create_access_token(identity=f"reset:{email}", expires_delta=False)
+    return jsonify({"message": "OTP verified.", "reset_token": reset_token}), 200
+
+
+@auth_bp.post("/forgot-password/reset")
+def reset_password():
+    """Naya password set karo."""
+    payload = request.get_json(silent=True) or {}
+    email = payload.get("email", "").strip().lower()
+    reset_token = payload.get("reset_token", "").strip()
+    new_password = payload.get("new_password", "")
+
+    if not email or not reset_token or not new_password:
+        return jsonify({"error": "All fields are required."}), 400
+
+    if len(new_password) < 6:
+        return jsonify({"error": "Password must be at least 6 characters."}), 400
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "User not found."}), 404
+
+    user.set_password(new_password)
+    db.session.commit()
+
+    return jsonify({"message": "Password reset successfully."}), 200
 
 
 @auth_bp.get("/me")
@@ -89,8 +138,6 @@ def login():
 def me():
     user_id = get_jwt_identity()
     user = User.query.get(user_id)
-
     if not user:
         return jsonify({"error": "User not found."}), 404
-
     return jsonify({"user": user.to_dict()}), 200

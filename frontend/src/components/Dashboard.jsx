@@ -7,6 +7,7 @@ import JobMatch from "./JobMatch";
 import ResumeAnalyzer from "./ResumeAnalyzer";
 import Sidebar from "./Sidebar";
 import SkillRoadmap from "./SkillRoadmap";
+import StatsCard from "./StatsCard";
 
 const ROLE_OPTIONS = [
   "Frontend Developer",
@@ -14,6 +15,30 @@ const ROLE_OPTIONS = [
   "Data Scientist",
   "Full Stack Developer"
 ];
+
+function DashboardHome({ analysisData, analysisLoading, setAnalysisData, setAnalysisLoading }) {
+  return (
+    <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
+      <motion.section
+        className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <p className="text-sm text-slate-600">
+          Welcome to your AI resume workspace. Use the sidebar to run deep analysis, compare jobs, and improve your ATS readiness.
+        </p>
+      </motion.section>
+
+      <div className="grid gap-4 sm:grid-cols-3">
+        <StatsCard label="Match Score" value={`${analysisData?.match_score || 0}%`} hint="Current role fit" tone="blue" delay={0.05} />
+        <StatsCard label="Skills Found" value={analysisData?.found_skills?.length || 0} hint="Detected in resume" tone="green" delay={0.1} />
+        <StatsCard label="Skills Missing" value={analysisData?.missing_skills?.length || 0} hint="Need improvement" tone="red" delay={0.15} />
+      </div>
+
+      <SkillRoadmap analysisData={analysisData} />
+    </motion.div>
+  );
+}
 
 function Dashboard({ user, onLogout }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -25,74 +50,41 @@ function Dashboard({ user, onLogout }) {
     ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "U";
 
-  // Determine which component to show based on current path
   const renderContent = () => {
-    if (location.pathname === "/dashboard" || location.pathname === "/dashboard/") {
+    const path = location.pathname;
+
+    if (path === "/dashboard" || path === "/dashboard/") {
+      return <DashboardHome analysisData={analysisData} analysisLoading={analysisLoading} setAnalysisData={setAnalysisData} setAnalysisLoading={setAnalysisLoading} />;
+    }
+    if (path === "/analyze") {
       return (
-        <motion.div
-          className="space-y-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.45 }}
-        >
-          <ResumeAnalyzer
-            roles={ROLE_OPTIONS}
-            onAnalysisComplete={setAnalysisData}
-            onLoadingChange={setAnalysisLoading}
-          />
-          <ChatAssistant analysisData={analysisData} />
-          <ATSCard analysisData={analysisData} loading={analysisLoading} />
-          <JobMatch analysisData={analysisData} />
-          <SkillRoadmap analysisData={analysisData} />
+        <motion.div className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
+          <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={setAnalysisData} onLoadingChange={setAnalysisLoading} />
         </motion.div>
       );
-    } else if (location.pathname === "/dashboard/analyze") {
+    }
+    if (path === "/chat") {
       return (
-        <motion.div
-          className="space-y-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.45 }}
-        >
-          <ResumeAnalyzer
-            roles={ROLE_OPTIONS}
-            onAnalysisComplete={setAnalysisData}
-            onLoadingChange={setAnalysisLoading}
-          />
-        </motion.div>
-      );
-    } else if (location.pathname === "/dashboard/chat") {
-      return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.45 }}
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
           <ChatAssistant analysisData={analysisData} />
         </motion.div>
       );
-    } else if (location.pathname === "/dashboard/ats") {
+    }
+    if (path === "/job-match") {
       return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.45 }}
-        >
-          <ATSCard analysisData={analysisData} loading={analysisLoading} />
-        </motion.div>
-      );
-    } else if (location.pathname === "/dashboard/job-match") {
-      return (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.45 }}
-        >
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
           <JobMatch analysisData={analysisData} />
         </motion.div>
       );
     }
-    return null;
+    if (path === "/ats") {
+      return (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
+          <ATSCard analysisData={analysisData} loading={analysisLoading} />
+        </motion.div>
+      );
+    }
+    return <Navigate to="/dashboard" replace />;
   };
 
   return (
@@ -129,7 +121,6 @@ function Dashboard({ user, onLogout }) {
               </div>
 
               <div className="flex items-center gap-3">
-                {/* User avatar + logout */}
                 <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
                   <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-xs font-semibold text-white">
                     {initials}
@@ -139,7 +130,6 @@ function Dashboard({ user, onLogout }) {
                     <p className="text-xs text-slate-500">{user?.email || ""}</p>
                   </div>
                 </div>
-
                 <button
                   type="button"
                   onClick={onLogout}
@@ -151,7 +141,6 @@ function Dashboard({ user, onLogout }) {
             </div>
           </motion.header>
 
-          {/* Main content */}
           {renderContent()}
 
         </main>
