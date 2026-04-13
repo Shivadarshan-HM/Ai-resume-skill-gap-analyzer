@@ -5,6 +5,7 @@ import ATSCard from "./ATSCard";
 import ChatAssistant from "./ChatAssistant";
 import JobMatch from "./JobMatch";
 import ResumeAnalyzer from "./ResumeAnalyzer";
+import Resources from "../pages/Resources";
 import Sidebar from "./Sidebar";
 import SkillRoadmap from "./SkillRoadmap";
 import StatsCard from "./StatsCard";
@@ -335,7 +336,7 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
         </motion.div>
       );
     } else if (location.pathname === "/dashboard/resources") {
-      return renderResources();
+      return <Resources />;
     } else if (location.pathname === "/dashboard/activity") {
       return renderActivity();
     } else if (location.pathname === "/dashboard/settings") {

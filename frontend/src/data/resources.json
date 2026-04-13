@@ -1,0 +1,50 @@
+{
+  "Frontend Developer": [
+    { "title": "The Odin Project – Full Frontend Path", "url": "https://www.theodinproject.com/paths/full-stack-javascript", "type": "Course", "skill": "JavaScript" },
+    { "title": "MDN Web Docs – HTML & CSS Reference", "url": "https://developer.mozilla.org/en-US/docs/Web", "type": "Docs", "skill": "HTML/CSS" },
+    { "title": "React Official Docs", "url": "https://react.dev/learn", "type": "Docs", "skill": "React" },
+    { "title": "JavaScript.info – Modern JS Tutorial", "url": "https://javascript.info/", "type": "Tutorial", "skill": "JavaScript" },
+    { "title": "TypeScript Handbook", "url": "https://www.typescriptlang.org/docs/handbook/intro.html", "type": "Docs", "skill": "TypeScript" },
+    { "title": "Redux Official Docs", "url": "https://redux.js.org/introduction/getting-started", "type": "Docs", "skill": "Redux" },
+    { "title": "Frontend Roadmap – roadmap.sh", "url": "https://roadmap.sh/frontend", "type": "Roadmap", "skill": "General" },
+    { "title": "freeCodeCamp – Responsive Web Design", "url": "https://www.freecodecamp.org/learn/2022/responsive-web-design/", "type": "Course", "skill": "HTML/CSS" },
+    { "title": "Git & GitHub Crash Course – freeCodeCamp", "url": "https://www.freecodecamp.org/news/git-and-github-for-beginners/", "type": "Tutorial", "skill": "Git" },
+    { "title": "REST API Design Guide – restfulapi.net", "url": "https://restfulapi.net/", "type": "Guide", "skill": "REST API" }
+  ],
+  "Backend Developer": [
+    { "title": "Backend Roadmap – roadmap.sh", "url": "https://roadmap.sh/backend", "type": "Roadmap", "skill": "General" },
+    { "title": "Python Official Tutorial", "url": "https://docs.python.org/3/tutorial/", "type": "Docs", "skill": "Python" },
+    { "title": "Flask Official Docs", "url": "https://flask.palletsprojects.com/en/stable/", "type": "Docs", "skill": "Flask" },
+    { "title": "Django Official Tutorial", "url": "https://docs.djangoproject.com/en/stable/intro/tutorial01/", "type": "Docs", "skill": "Django" },
+    { "title": "SQLZoo – Learn SQL Interactively", "url": "https://sqlzoo.net/wiki/SQL_Tutorial", "type": "Tutorial", "skill": "SQL" },
+    { "title": "Docker Get Started Guide", "url": "https://docs.docker.com/get-started/", "type": "Docs", "skill": "Docker" },
+    { "title": "Real Python – Flask Tutorials", "url": "https://realpython.com/tutorials/flask/", "type": "Tutorial", "skill": "Flask" },
+    { "title": "REST API Design – restfulapi.net", "url": "https://restfulapi.net/", "type": "Guide", "skill": "REST API" },
+    { "title": "Unit Testing in Python – Real Python", "url": "https://realpython.com/python-testing/", "type": "Tutorial", "skill": "Unit Testing" },
+    { "title": "Git Official Docs", "url": "https://git-scm.com/doc", "type": "Docs", "skill": "Git" }
+  ],
+  "Data Scientist": [
+    { "title": "Data Science Roadmap – roadmap.sh", "url": "https://roadmap.sh/ai-data-scientist", "type": "Roadmap", "skill": "General" },
+    { "title": "Kaggle – Free Data Science Courses", "url": "https://www.kaggle.com/learn", "type": "Course", "skill": "General" },
+    { "title": "Pandas Official Docs", "url": "https://pandas.pydata.org/docs/getting_started/index.html", "type": "Docs", "skill": "Pandas" },
+    { "title": "NumPy Official Docs", "url": "https://numpy.org/doc/stable/user/quickstart.html", "type": "Docs", "skill": "NumPy" },
+    { "title": "Scikit-learn Official Tutorial", "url": "https://scikit-learn.org/stable/tutorial/index.html", "type": "Docs", "skill": "Scikit-learn" },
+    { "title": "StatQuest – Machine Learning (YouTube)", "url": "https://www.youtube.com/@statquest", "type": "Video", "skill": "Machine Learning" },
+    { "title": "Towards Data Science – Blog", "url": "https://towardsdatascience.com/", "type": "Blog", "skill": "General" },
+    { "title": "Matplotlib & Seaborn – Data Visualization", "url": "https://matplotlib.org/stable/tutorials/index.html", "type": "Docs", "skill": "Data Visualization" },
+    { "title": "Mode Analytics – SQL Tutorial", "url": "https://mode.com/sql-tutorial/", "type": "Tutorial", "skill": "SQL" },
+    { "title": "Khan Academy – Statistics & Probability", "url": "https://www.khanacademy.org/math/statistics-probability", "type": "Course", "skill": "Statistics" }
+  ],
+  "Full Stack Developer": [
+    { "title": "Full Stack Roadmap – roadmap.sh", "url": "https://roadmap.sh/full-stack", "type": "Roadmap", "skill": "General" },
+    { "title": "The Odin Project – Full Stack Path", "url": "https://www.theodinproject.com/paths/full-stack-javascript", "type": "Course", "skill": "General" },
+    { "title": "React Official Docs", "url": "https://react.dev/learn", "type": "Docs", "skill": "React" },
+    { "title": "Node.js Official Docs", "url": "https://nodejs.org/en/docs/", "type": "Docs", "skill": "Node.js" },
+    { "title": "JavaScript.info – Modern JS Tutorial", "url": "https://javascript.info/", "type": "Tutorial", "skill": "JavaScript" },
+    { "title": "Flask Official Docs", "url": "https://flask.palletsprojects.com/en/stable/", "type": "Docs", "skill": "Flask" },
+    { "title": "SQLZoo – Learn SQL Interactively", "url": "https://sqlzoo.net/wiki/SQL_Tutorial", "type": "Tutorial", "skill": "SQL" },
+    { "title": "MDN Web Docs", "url": "https://developer.mozilla.org/en-US/", "type": "Docs", "skill": "General" },
+    { "title": "freeCodeCamp – Full Curriculum", "url": "https://www.freecodecamp.org/learn", "type": "Course", "skill": "General" },
+    { "title": "REST API Design – restfulapi.net", "url": "https://restfulapi.net/", "type": "Guide", "skill": "REST API" }
+  ]
+}
