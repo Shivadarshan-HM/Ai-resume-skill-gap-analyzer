@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
+import Landing from "./pages/Landing";
 import Dashboard from "./components/Dashboard";
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
+
     if (token && savedUser) {
       try {
         setUser(JSON.parse(savedUser));
@@ -18,18 +20,19 @@ function App() {
         localStorage.removeItem("user");
       }
     }
+
     setChecking(false);
   }, []);
 
-  function handleLoginSuccess(userData) {
+  const handleLoginSuccess = (userData) => {
     setUser(userData);
-  }
+  };
 
-  function handleLogout() {
+  const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
-  }
+  };
 
   if (checking) return null;
 
@@ -37,34 +40,22 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route
+          path="/"
+          element={
+            user
+              ? <Navigate to="/dashboard" replace />
+              : <Landing />
+          }
+        />
+        <Route
           path="/login"
           element={user ? <Navigate to="/dashboard" replace /> : <Login onLoginSuccess={handleLoginSuccess} />}
         />
-
-        {/* Ye saare routes Dashboard component ke andar handle honge */}
         <Route
-          path="/dashboard"
+          path="/dashboard/*"
           element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
         />
-        <Route
-          path="/analyze"
-          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/chat"
-          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/job-match"
-          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/ats"
-          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
-        />
-
-        <Route path="/" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
-        <Route path="*" element={<Navigate to={user ? "/dashboard" : "/login"} replace />} />
+        <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} replace />} />
       </Routes>
     </BrowserRouter>
   );
