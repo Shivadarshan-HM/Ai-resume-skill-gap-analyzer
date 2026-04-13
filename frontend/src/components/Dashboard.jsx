@@ -28,8 +28,68 @@ const ROUTE_LABELS = {
   "/dashboard/settings": "Settings"
 };
 
+const LEARNING_RESOURCES = [
+  {
+    title: "Frontend Developer Roadmap",
+    detail: "Step-by-step guide for frontend skills, tools, and project progression.",
+    tag: "Frontend",
+    topics: ["frontend", "html", "css", "javascript", "react"],
+    url: "https://roadmap.sh/frontend"
+  },
+  {
+    title: "React Official Learn",
+    detail: "Hands-on official React learning path with modern patterns.",
+    tag: "React",
+    topics: ["react", "hooks", "jsx", "frontend"],
+    url: "https://react.dev/learn"
+  },
+  {
+    title: "MDN JavaScript Guide",
+    detail: "Comprehensive JavaScript reference and practical tutorials.",
+    tag: "JavaScript",
+    topics: ["javascript", "web", "frontend", "programming"],
+    url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide"
+  },
+  {
+    title: "Python Official Tutorial",
+    detail: "Beginner-to-intermediate Python fundamentals from official docs.",
+    tag: "Python",
+    topics: ["python", "backend", "basics", "programming"],
+    url: "https://docs.python.org/3/tutorial/"
+  },
+  {
+    title: "Flask Mega-Tutorial",
+    detail: "Practical Flask web app development from basics to advanced.",
+    tag: "Backend",
+    topics: ["flask", "backend", "api", "python"],
+    url: "https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world"
+  },
+  {
+    title: "System Design Primer",
+    detail: "High-level system design concepts and interview preparation notes.",
+    tag: "System Design",
+    topics: ["system design", "architecture", "interview", "scalability"],
+    url: "https://github.com/donnemartin/system-design-primer"
+  },
+  {
+    title: "NeetCode Roadmap",
+    detail: "Curated DSA problem list with structured interview preparation order.",
+    tag: "DSA",
+    topics: ["dsa", "algorithms", "data structures", "coding interview"],
+    url: "https://neetcode.io/roadmap"
+  },
+  {
+    title: "AWS Training and Certification",
+    detail: "Cloud learning paths for AWS basics, architecture, and services.",
+    tag: "Cloud",
+    topics: ["aws", "cloud", "devops", "architecture"],
+    url: "https://www.aws.training/"
+  }
+];
+
 function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoading, setAnalysisLoading }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [resourceQuery, setResourceQuery] = useState("");
   const location = useLocation();
 
   const initials = user?.full_name
@@ -105,25 +165,57 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
   }
 
   function renderResources() {
-    const resources = [
-      { title: "Resume Bullet Formula", detail: "Action verb + task + quantified impact", tag: "Writing" },
-      { title: "Portfolio Checklist", detail: "3 projects with problem, stack, and measurable result", tag: "Projects" },
-      { title: "Interview Prep Grid", detail: "Behavioral + role-specific + system design practice", tag: "Interview" },
-      { title: "Keyword Bank", detail: "Keep role-specific terms in experience and project sections", tag: "ATS" }
-    ];
+    const query = resourceQuery.trim().toLowerCase();
+    const filteredResources = LEARNING_RESOURCES.filter((item) => {
+      if (!query) return true;
+      return (
+        item.title.toLowerCase().includes(query)
+        || item.tag.toLowerCase().includes(query)
+        || item.detail.toLowerCase().includes(query)
+        || item.topics.some((topic) => topic.includes(query))
+      );
+    });
 
     return (
       <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <h3 className="text-xl font-semibold text-slate-900">Learning Resources</h3>
-        <p className="mt-1 text-sm text-slate-500">Use these practical guides to improve your resume quality each week.</p>
+        <p className="mt-1 text-sm text-slate-500">Type a skill or topic (for example: react, python, aws, system design) and open useful external learning blogs or websites.</p>
+        <label htmlFor="resource-search" className="mt-4 block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
+          Search by skill or topic
+        </label>
+        <input
+          id="resource-search"
+          type="text"
+          value={resourceQuery}
+          onChange={(e) => setResourceQuery(e.target.value)}
+          placeholder="Type skill or topic..."
+          className="mt-2 h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
+        />
+
+        <p className="mt-3 text-xs text-slate-500">
+          {filteredResources.length} resource{filteredResources.length === 1 ? "" : "s"} found
+        </p>
+
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          {resources.map((item) => (
-            <article key={item.title} className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+          {filteredResources.map((item) => (
+            <a
+              key={item.title}
+              href={item.url}
+              target="_blank"
+              rel="noreferrer"
+              className="group rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white"
+            >
               <p className="text-xs uppercase tracking-[0.14em] text-sky-700">{item.tag}</p>
               <h4 className="mt-1 text-base font-semibold text-slate-900">{item.title}</h4>
               <p className="mt-2 text-sm text-slate-600">{item.detail}</p>
-            </article>
+              <p className="mt-3 text-sm font-medium text-sky-700 group-hover:text-sky-800">Open resource</p>
+            </a>
           ))}
+          {filteredResources.length === 0 && (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 sm:col-span-2">
+              No resources found for this topic yet. Try another keyword like react, flask, dsa, or aws.
+            </div>
+          )}
         </div>
       </motion.section>
     );
