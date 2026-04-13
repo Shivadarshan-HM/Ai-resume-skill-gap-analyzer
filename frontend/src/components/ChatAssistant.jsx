@@ -1,8 +1,15 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
+
+const BASE_URL = "http://127.0.0.1:5000";
+
+function getToken() {
+  return localStorage.getItem("token");
+}
 
 function ChatAssistant({ analysisData }) {
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -10,65 +17,57 @@ function ChatAssistant({ analysisData }) {
       content: "Hi! Ask anything about your resume and I will guide you with practical suggestions."
     }
   ]);
+  const bottomRef = useRef(null);
 
-  const contextSummary = useMemo(() => {
-    const score = analysisData?.match_score ?? 0;
-    const found = analysisData?.found_skills ?? [];
-    const missing = analysisData?.missing_skills ?? [];
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
-    return {
-      score,
-      found,
-      missing
-    };
-  }, [analysisData]);
+  const contextSummary = useMemo(() => ({
+    match_score: analysisData?.match_score ?? 0,
+    found_skills: analysisData?.found_skills ?? [],
+    missing_skills: analysisData?.missing_skills ?? [],
+    role: analysisData?.role ?? ""
+  }), [analysisData]);
 
-  function buildAssistantReply(question) {
-    const normalized = question.toLowerCase();
-
-    if (normalized.includes("score") || normalized.includes("ats")) {
-      return `Your current match score is ${contextSummary.score}%. Improve it by adding measurable achievements and including missing role keywords.`;
-    }
-
-    if (normalized.includes("missing") || normalized.includes("improve")) {
-      if (!contextSummary.missing.length) {
-        return "Great progress. I do not see missing core skills for the selected role right now.";
-      }
-      return `Top skills to improve next: ${contextSummary.missing.slice(0, 5).join(", ")}. Add one project bullet for each skill.`;
-    }
-
-    if (normalized.includes("found") || normalized.includes("strength")) {
-      if (!contextSummary.found.length) {
-        return "I could not detect strong matched skills yet. Try adding your key tools and achievements clearly in the resume.";
-      }
-      return `Your strongest detected skills are ${contextSummary.found.slice(0, 5).join(", ")}. Emphasize outcomes tied to these.`;
-    }
-
-    return "Focus on impact-driven bullet points, role-specific keywords, and clean formatting. If you want, ask me about ATS score, missing skills, or interview readiness.";
-  }
-
-  function handleSend(event) {
+  async function handleSend(event) {
     event.preventDefault();
     const trimmed = input.trim();
+    if (!trimmed || loading) return;
 
-    if (!trimmed) {
-      return;
-    }
-
-    const userMessage = {
-      id: Date.now(),
-      role: "user",
-      content: trimmed
-    };
-
-    const assistantMessage = {
-      id: Date.now() + 1,
-      role: "assistant",
-      content: buildAssistantReply(trimmed)
-    };
-
-    setMessages((current) => [...current, userMessage, assistantMessage]);
+    const userMessage = { id: Date.now(), role: "user", content: trimmed };
+    setMessages((prev) => [...prev, userMessage]);
     setInput("");
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${BASE_URL}/chat`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getToken()}`
+        },
+        body: JSON.stringify({
+          message: trimmed,
+          analysis_data: contextSummary
+        })
+      });
+
+      const data = await res.json();
+      const reply = data.reply || data.error || "Sorry, I could not process that.";
+
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, role: "assistant", content: reply }
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now() + 1, role: "assistant", content: "Connection error. Make sure backend is running." }
+      ]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -77,7 +76,6 @@ function ChatAssistant({ analysisData }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.15 }}
-      whileHover={{ y: -5 }}
     >
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Assistant</p>
       <h3 className="text-lg font-semibold text-slate-900">AI Resume Chat Assistant</h3>
@@ -99,6 +97,16 @@ function ChatAssistant({ analysisData }) {
             {message.content}
           </motion.div>
         ))}
+
+        {loading && (
+          <div className="flex max-w-[85%] items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-500">
+            <span className="h-3 w-3 animate-bounce rounded-full bg-sky-400" style={{ animationDelay: "0ms" }} />
+            <span className="h-3 w-3 animate-bounce rounded-full bg-sky-400" style={{ animationDelay: "150ms" }} />
+            <span className="h-3 w-3 animate-bounce rounded-full bg-sky-400" style={{ animationDelay: "300ms" }} />
+          </div>
+        )}
+
+        <div ref={bottomRef} />
       </div>
 
       <form onSubmit={handleSend} className="mt-4 flex gap-3">
@@ -106,11 +114,13 @@ function ChatAssistant({ analysisData }) {
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Ask anything about your resume..."
-          className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none transition duration-300 focus:ring-2 focus:ring-sky-400"
+          disabled={loading}
+          className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none transition duration-300 focus:ring-2 focus:ring-sky-400 disabled:opacity-60"
         />
         <motion.button
           type="submit"
-          className="h-11 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 px-5 text-sm font-semibold text-white shadow-md shadow-cyan-200"
+          disabled={loading}
+          className="h-11 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 px-5 text-sm font-semibold text-white shadow-md shadow-cyan-200 disabled:opacity-60"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
         >

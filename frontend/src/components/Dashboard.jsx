@@ -124,7 +124,7 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
             <div className="max-w-2xl">
               <p className="text-xs uppercase tracking-[0.18em] text-cyan-100">Career Command Center</p>
               <h2 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">Design a resume that recruiters shortlist faster</h2>
-              <p className="mt-3 text-sm text-cyan-50/95 sm:text-base">Analyze resume alignment, prioritize missing skills, and turn insights into weekly improvement actions.</p>
+              <p className="mt-3 text-sm text-cyan-50/95 sm:text-base">Analyze resume alignment, prioritize missing skills, and turn your resume into an ATS-friendly document.</p>
             </div>
             <div className="grid w-full max-w-xs grid-cols-2 gap-3 text-slate-900">
               <div className="rounded-2xl bg-white/95 p-3 shadow-sm">
@@ -385,7 +385,7 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
                   <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
                     Welcome, {user?.full_name?.split(" ")[0] || "User"} 👋
                   </h1>
-                  <p className="mt-1 text-sm text-slate-500">Build a stronger resume with focused AI guidance and weekly actions</p>
+                  <p className="mt-1 text-sm text-slate-500">Build a stronger resume with focused AI guidance and ATS friendly formatting</p>
                 </div>
               </div>
 
