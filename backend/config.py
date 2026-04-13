@@ -17,4 +17,9 @@ class Config:
     MAIL_USE_TLS = True
     MAIL_USERNAME = os.getenv("MAIL_EMAIL")
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
-    MAIL_DEFAULT_SENDER = os.getenv("MAIL_EMAIL")
+    MAIL_DEFAULT_SENDER = (
+        os.getenv("MAIL_DEFAULT_SENDER")
+        or os.getenv("MAIL_EMAIL")
+        or os.getenv("MAIL_USERNAME")
+        or "no-reply@localhost"
+    )
