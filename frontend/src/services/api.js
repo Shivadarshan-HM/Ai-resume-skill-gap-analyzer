@@ -88,7 +88,7 @@ export async function verifyOtp({ email, otp }) {
 
 // Forgot Password - Send OTP
 export async function forgotPasswordSendOtp({ email }) {
-  const res = await fetch(`${BASE_URL}/forgot-password/send-otp`, {
+  const res = await fetch(`${BASE_URL}/auth/forgot-password/send-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email }),
@@ -100,7 +100,7 @@ export async function forgotPasswordSendOtp({ email }) {
 
 // Forgot Password - Verify OTP
 export async function forgotPasswordVerifyOtp({ email, otp }) {
-  const res = await fetch(`${BASE_URL}/forgot-password/verify-otp`, {
+  const res = await fetch(`${BASE_URL}/auth/forgot-password/verify-otp`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, otp }),
@@ -111,11 +111,11 @@ export async function forgotPasswordVerifyOtp({ email, otp }) {
 }
 
 // Forgot Password - Reset
-export async function resetPassword({ email, otp, newPassword }) {
-  const res = await fetch(`${BASE_URL}/forgot-password/reset`, {
+export async function resetPassword({ email, resetToken, newPassword }) {
+  const res = await fetch(`${BASE_URL}/auth/forgot-password/reset`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, otp, new_password: newPassword }),
+    body: JSON.stringify({ email, reset_token: resetToken, new_password: newPassword }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Password reset failed.");

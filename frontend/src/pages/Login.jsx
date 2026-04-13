@@ -171,6 +171,11 @@ function Login({ onLoginSuccess }) {
                 <motion.button type="submit" disabled={loading} className="h-12 w-full rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 text-sm font-semibold text-white shadow-md shadow-cyan-200 disabled:opacity-70" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   {loading ? "Please wait..." : "Sign in"}
                 </motion.button>
+                <p className="text-right text-sm text-slate-500">
+                  <Link to="/forgot-password" className="font-medium text-sky-700 underline underline-offset-2">
+                    Forgot Password?
+                  </Link>
+                </p>
               </form>
             )}
           </div>

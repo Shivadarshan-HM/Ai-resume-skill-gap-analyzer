@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login";
 import Landing from "./pages/Landing";
+import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./components/Dashboard";
 
 function App() {
@@ -61,6 +62,10 @@ function App() {
         <Route
           path="/login"
           element={user ? <Navigate to="/dashboard" replace /> : <Login onLoginSuccess={handleLoginSuccess} />}
+        />
+        <Route
+          path="/forgot-password"
+          element={user ? <Navigate to="/dashboard" replace /> : <ForgotPassword />}
         />
         <Route
           path="/dashboard/*"
