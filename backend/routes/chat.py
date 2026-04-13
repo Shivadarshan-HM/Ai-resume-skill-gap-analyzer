@@ -41,7 +41,7 @@ Be concise, practical, and encouraging. Give actionable advice in 2-3 sentences 
 
     try:
         response = client.chat.completions.create(
-            model="llama3-8b-8192",
+            model="llama-3.3-70b-versatile",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_message}
