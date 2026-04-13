@@ -22,23 +22,24 @@ function ATSCard({ analysisData }) {
 
   return (
     <motion.section
-      className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm lg:p-7"
+      className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-lg backdrop-blur-sm lg:p-7"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.2 }}
       whileHover={{ y: -5 }}
     >
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Performance</p>
       <h3 className="text-lg font-semibold text-slate-900">ATS Score Checker</h3>
       <p className="mt-1 text-sm text-slate-500">Estimated ATS performance based on resume-role alignment.</p>
 
-      <div className="mt-5 rounded-2xl border border-blue-100 bg-blue-50 p-4">
+      <div className="mt-5 rounded-2xl border border-sky-100 bg-sky-50 p-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-blue-700">Overall ATS Score</span>
-          <span className="text-lg font-semibold text-blue-700">{score}%</span>
+          <span className="text-sm font-medium text-sky-700">Overall ATS Score</span>
+          <span className="text-lg font-semibold text-sky-700">{score}%</span>
         </div>
-        <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-blue-100">
+        <div className="mt-3 h-3 w-full overflow-hidden rounded-full bg-sky-100">
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-blue-600 to-cyan-500"
+            className="h-full rounded-full bg-gradient-to-r from-sky-600 to-cyan-500"
             initial={{ width: 0 }}
             animate={{ width: `${score}%` }}
             transition={{ duration: 1.1, ease: "easeOut" }}

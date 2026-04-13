@@ -73,12 +73,13 @@ function ChatAssistant({ analysisData }) {
 
   return (
     <motion.section
-      className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm lg:p-7"
+      className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-lg backdrop-blur-sm lg:p-7"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.15 }}
       whileHover={{ y: -5 }}
     >
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Assistant</p>
       <h3 className="text-lg font-semibold text-slate-900">AI Resume Chat Assistant</h3>
       <p className="mt-1 text-sm text-slate-500">Ask follow-up questions and get quick, resume-focused guidance.</p>
 
@@ -105,12 +106,12 @@ function ChatAssistant({ analysisData }) {
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Ask anything about your resume..."
-          className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none transition duration-300 focus:ring-2 focus:ring-blue-400"
+          className="h-11 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none transition duration-300 focus:ring-2 focus:ring-sky-400"
         />
         <motion.button
           type="submit"
-          className="h-11 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-5 text-sm font-semibold text-white shadow-md"
-          whileHover={{ scale: 1.04 }}
+          className="h-11 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 px-5 text-sm font-semibold text-white shadow-md shadow-cyan-200"
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
         >
           Send

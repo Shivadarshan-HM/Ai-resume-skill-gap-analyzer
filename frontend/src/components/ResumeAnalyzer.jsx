@@ -47,11 +47,12 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
 
   return (
     <motion.section
-      className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm lg:p-7"
+      className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-lg backdrop-blur-sm lg:p-7"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.15 }}
     >
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Core Tool</p>
       <h3 className="text-lg font-semibold text-slate-900">Resume Upload + AI Analysis</h3>
       <p className="mt-1 text-sm text-slate-500">
         Upload your resume and ask AI for focused career feedback.
@@ -64,7 +65,7 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
             type="file"
             accept=".pdf,.doc,.docx,.txt"
             onChange={(event) => setFile(event.target.files?.[0] || null)}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 shadow-sm file:mr-3 file:rounded-lg file:border-0 file:bg-blue-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-blue-700"
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 shadow-sm file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-sky-700"
           />
         </label>
 
@@ -73,7 +74,7 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
           <select
             value={role}
             onChange={(event) => setRole(event.target.value)}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 focus:ring-2 focus:ring-sky-400"
           >
             <option value="">Choose a role</option>
             {roles.map((roleName) => (
@@ -91,15 +92,15 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
             onChange={(event) => setPrompt(event.target.value)}
             placeholder="Ask AI about your resume..."
             rows={4}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400"
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 placeholder:text-slate-400 focus:ring-2 focus:ring-sky-400"
           />
         </label>
 
         <motion.button
           type="submit"
           disabled={loading}
-          className="h-11 w-full rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 text-sm font-semibold text-white shadow-md transition duration-300 disabled:cursor-not-allowed disabled:opacity-70"
-          whileHover={{ scale: 1.03, boxShadow: "0 14px 28px rgba(37, 99, 235, 0.32)" }}
+          className="h-11 w-full rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 text-sm font-semibold text-white shadow-md shadow-cyan-200 transition duration-300 disabled:cursor-not-allowed disabled:opacity-70"
+          whileHover={{ scale: 1.02, boxShadow: "0 14px 28px rgba(14, 116, 144, 0.26)" }}
           whileTap={{ scale: 0.98 }}
         >
           {loading ? "Analyzing..." : "Analyze Uploaded Resume"}

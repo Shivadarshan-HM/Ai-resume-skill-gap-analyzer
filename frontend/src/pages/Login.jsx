@@ -174,14 +174,12 @@ function Login({ onLoginSuccess }) {
               </form>
             )}
           </div>
-
           <div className="mt-10 flex flex-wrap items-center justify-between gap-4 text-xs text-slate-500 lg:mt-auto">
             <p>{isRegister ? "Already have an account?" : "Don't have an account?"}{" "}
               <button type="button" onClick={switchMode} className="font-semibold text-slate-700 underline underline-offset-2">{isRegister ? "Sign in" : "Sign up"}</button>
             </p>
           </div>
         </div>
-
         <motion.div className="relative hidden p-4 lg:block" animate={{ y: [0, -8, 0] }} transition={{ duration: 5, repeat: Infinity }}>
           <div className="relative h-full overflow-hidden rounded-3xl bg-[linear-gradient(150deg,#0b1220_0%,#0a3f63_58%,#0891b2_100%)] p-8">
             <div className="pointer-events-none absolute -right-16 -top-16 h-52 w-52 rounded-full bg-cyan-300/20 blur-3xl" />

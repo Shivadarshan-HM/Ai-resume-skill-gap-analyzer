@@ -7,19 +7,19 @@ const ROUTE_META = {
     title: "Dashboard",
     subtitle: "Analyze your resume and improve your skills"
   },
-  "/analyze": {
+  "/dashboard/analyze": {
     title: "Analyze Resume",
     subtitle: "Upload your resume and get AI-powered analysis"
   },
-  "/chat": {
+  "/dashboard/chat": {
     title: "AI Chat Assistant",
     subtitle: "Ask follow-up questions about your resume"
   },
-  "/job-match": {
+  "/dashboard/job-match": {
     title: "Job Match",
     subtitle: "Compare your resume with any job description"
   },
-  "/ats": {
+  "/dashboard/ats": {
     title: "ATS Score Checker",
     subtitle: "Track ATS readiness and improve score quality"
   }

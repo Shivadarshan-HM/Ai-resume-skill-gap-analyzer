@@ -11,7 +11,6 @@ function App() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     const savedUser = localStorage.getItem("user");
-
     if (token && savedUser) {
       try {
         setUser(JSON.parse(savedUser));
@@ -20,19 +19,18 @@ function App() {
         localStorage.removeItem("user");
       }
     }
-
     setChecking(false);
   }, []);
 
-  const handleLoginSuccess = (userData) => {
+  function handleLoginSuccess(userData) {
     setUser(userData);
-  };
+  }
 
-  const handleLogout = () => {
+  function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
-  };
+  }
 
   if (checking) return null;
 
@@ -49,11 +47,19 @@ function App() {
         />
         <Route
           path="/login"
-          element={user ? <Navigate to="/dashboard" replace /> : <Login onLoginSuccess={handleLoginSuccess} />}
+          element={
+            user
+              ? <Navigate to="/dashboard" replace />
+              : <Login onLoginSuccess={handleLoginSuccess} />
+          }
         />
         <Route
           path="/dashboard/*"
-          element={user ? <Dashboard user={user} onLogout={handleLogout} /> : <Navigate to="/login" replace />}
+          element={
+            user
+              ? <Dashboard user={user} onLogout={handleLogout} />
+              : <Navigate to="/login" replace />
+          }
         />
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} replace />} />
       </Routes>

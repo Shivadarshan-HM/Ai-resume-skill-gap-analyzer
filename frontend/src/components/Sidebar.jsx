@@ -4,6 +4,7 @@ import { NavLink } from "react-router-dom";
 const MENU_ITEMS = [
   {
     to: "/dashboard",
+    end: true,
     label: "Dashboard",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -12,7 +13,7 @@ const MENU_ITEMS = [
     )
   },
   {
-    to: "/analyze",
+    to: "/dashboard/analyze",
     label: "Analyze Resume",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -22,7 +23,7 @@ const MENU_ITEMS = [
     )
   },
   {
-    to: "/chat",
+    to: "/dashboard/chat",
     label: "AI Chat",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -31,7 +32,7 @@ const MENU_ITEMS = [
     )
   },
   {
-    to: "/job-match",
+    to: "/dashboard/job-match",
     label: "Job Match",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -40,11 +41,47 @@ const MENU_ITEMS = [
     )
   },
   {
-    to: "/ats",
+    to: "/dashboard/ats",
     label: "ATS Score",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
         <path d="M4 18h16M7 14l3-3 2 2 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    to: "/dashboard/roadmap",
+    label: "Roadmap",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+        <path d="M4 7h6v4H4V7Zm10 0h6v4h-6V7ZM9 13h6v4H9v-4Z" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    )
+  },
+  {
+    to: "/dashboard/resources",
+    label: "Resources",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+        <path d="M6 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Zm0 4h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      </svg>
+    )
+  },
+  {
+    to: "/dashboard/activity",
+    label: "Activity",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+        <path d="M4 12h4l2-4 4 8 2-4h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    to: "/dashboard/settings",
+    label: "Settings",
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
+        <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm8-3a8 8 0 0 1-.1 1.2l2 1.5-2 3.4-2.4-1a8.5 8.5 0 0 1-2 1.2L13 21h-2l-.5-2.7a8.5 8.5 0 0 1-2-1.2l-2.4 1-2-3.4 2-1.5A8 8 0 0 1 4 12c0-.4 0-.8.1-1.2l-2-1.5 2-3.4 2.4 1a8.5 8.5 0 0 1 2-1.2L11 3h2l.5 2.7a8.5 8.5 0 0 1 2 1.2l2.4-1 2 3.4-2 1.5c.1.4.1.8.1 1.2Z" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     )
   }
@@ -60,47 +97,51 @@ function Sidebar({ isOpen, onClose }) {
         onClick={onClose}
         aria-hidden="true"
       />
+
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-72 border-r border-white/70 bg-white/85 p-6 shadow-xl backdrop-blur-sm transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 w-80 border-r border-slate-200/70 bg-[linear-gradient(170deg,#fcfeff_0%,#f2f8fd_100%)] p-6 shadow-xl backdrop-blur-sm transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="mb-8 flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-500 text-white shadow-md">
-            <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
-              <path d="M4 12h16M8 8l-4 4 4 4m8-8 4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </div>
-          <div>
-            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Analyzer</p>
-            <h2 className="text-lg font-semibold text-slate-900">Control Panel</h2>
-          </div>
+      <div className="mb-8 flex items-center gap-3">
+        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-sky-600 to-cyan-500 text-white shadow-md shadow-cyan-200">
+          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
+            <path d="M4 12h16M8 8l-4 4 4 4m8-8 4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </div>
-
-        <nav className="space-y-2">
-          {MENU_ITEMS.map((item) => (
-            <NavLink key={item.to} to={item.to} onClick={onClose} end={item.to === "/dashboard"}>
-              {({ isActive }) => (
-                <motion.div
-                  className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
-                    isActive
-                      ? "border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50 text-blue-700 shadow-sm"
-                      : "border-transparent text-slate-600 hover:border-blue-100 hover:bg-blue-50 hover:text-blue-700"
-                  }`}
-                  whileHover={{ x: 2 }}
-                >
-                  <span className={`${isActive ? "text-blue-600" : "text-slate-500"}`}>{item.icon}</span>
-                  <span>{item.label}</span>
-                </motion.div>
-              )}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="mt-8 rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 to-cyan-50 p-4">
-          <p className="text-xs uppercase tracking-[0.12em] text-blue-600">Tip</p>
-          <p className="mt-2 text-sm text-slate-600">Use role-specific keywords in your resume to improve match quality.</p>
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Career Studio</p>
+          <h2 className="text-lg font-semibold text-slate-900">Smart Dashboard</h2>
         </div>
+      </div>
+
+      <nav className="space-y-2">
+        {MENU_ITEMS.map((item) => (
+          <NavLink key={item.to} to={item.to} end={item.end} onClick={onClose}>
+            {({ isActive }) => (
+              <motion.div
+                className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
+                  isActive
+                    ? "border-cyan-200 bg-gradient-to-r from-sky-50 to-cyan-50 text-sky-700 shadow-sm"
+                    : "border-transparent text-slate-600 hover:border-cyan-100 hover:bg-cyan-50/70 hover:text-sky-700"
+                }`}
+                whileHover={{ x: 2 }}
+              >
+                <span className={`${isActive ? "text-sky-600" : "text-slate-500"}`}>{item.icon}</span>
+                <span>{item.label}</span>
+              </motion.div>
+            )}
+          </NavLink>
+        ))}
+      </nav>
+
+      <div className="mt-8 rounded-2xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50 p-4 shadow-sm">
+        <p className="text-xs uppercase tracking-[0.12em] text-sky-600">Weekly Target</p>
+        <p className="mt-2 text-sm text-slate-700">Add two measurable achievement bullets and one role-specific project this week.</p>
+        <div className="mt-3 h-2 overflow-hidden rounded-full bg-cyan-100">
+          <div className="h-full w-2/5 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500" />
+        </div>
+      </div>
       </aside>
     </>
   );

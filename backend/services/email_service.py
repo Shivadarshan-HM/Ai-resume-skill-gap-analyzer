@@ -3,6 +3,7 @@ import string
 import os
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
+from flask import current_app
 
 mail = Mail()
 
@@ -16,6 +17,7 @@ def send_otp_email(email: str) -> bool:
     from database import db
     from models.user import OTPRecord
 
+    email = (email or "").strip().lower()
     otp = generate_otp()
     expiry = datetime.utcnow() + timedelta(minutes=10)
 
@@ -28,15 +30,23 @@ def send_otp_email(email: str) -> bool:
     db.session.commit()
 
     sender = (
-        os.getenv("MAIL_DEFAULT_SENDER")
-        or os.getenv("MAIL_EMAIL")
-        or os.getenv("MAIL_USERNAME")
+        current_app.config.get("MAIL_DEFAULT_SENDER")
+        or current_app.config.get("MAIL_USERNAME")
         or "no-reply@localhost"
     )
+    mail_username = current_app.config.get("MAIL_USERNAME")
+    mail_password = current_app.config.get("MAIL_PASSWORD")
 
-    if not os.getenv("MAIL_USERNAME") or not os.getenv("MAIL_PASSWORD"):
-        print(f"[DEV OTP] {email}: {otp}")
-        return True
+    # In debug mode, allow console OTP fallback if SMTP credentials are missing.
+    if not mail_username or not mail_password:
+        if current_app.debug:
+            print(f"[DEV OTP] {email}: {otp}")
+            return True
+
+        # Production-like mode: fail fast instead of pretending OTP was emailed.
+        OTPRecord.query.filter_by(email=email).delete()
+        db.session.commit()
+        return False
 
     try:
         msg = Message(
@@ -59,8 +69,12 @@ If you did not request this, please ignore this email.
         return True
     except Exception as e:
         print(f"Email send error: {e}")
-        print(f"[DEV OTP] {email}: {otp}")
-        return True
+        if current_app.debug:
+            print(f"[DEV OTP] {email}: {otp}")
+            return True
+        OTPRecord.query.filter_by(email=email).delete()
+        db.session.commit()
+        return False
 
 
 def verify_otp(email: str, otp: str) -> bool:

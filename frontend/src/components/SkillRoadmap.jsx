@@ -8,12 +8,13 @@ function SkillRoadmap({ analysisData }) {
 
   return (
     <motion.section
-      className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm lg:p-7"
+      className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-lg backdrop-blur-sm lg:p-7"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.3 }}
       whileHover={{ y: -5 }}
     >
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Growth Plan</p>
       <h3 className="text-lg font-semibold text-slate-900">Skill Roadmap Generator</h3>
       <p className="mt-1 text-sm text-slate-500">Step-by-step learning path based on your resume gap.</p>
 

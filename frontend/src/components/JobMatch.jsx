@@ -57,12 +57,13 @@ function JobMatch({ analysisData }) {
 
   return (
     <motion.section
-      className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm lg:p-7"
+      className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-lg backdrop-blur-sm lg:p-7"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.25 }}
       whileHover={{ y: -5 }}
     >
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Comparison</p>
       <h3 className="text-lg font-semibold text-slate-900">Job Description Match</h3>
       <p className="mt-1 text-sm text-slate-500">Paste a job description and compare it with your current resume profile.</p>
 
@@ -72,13 +73,13 @@ function JobMatch({ analysisData }) {
           onChange={(event) => setJobDescription(event.target.value)}
           placeholder="Paste job description here..."
           rows={4}
-          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-400"
+          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 placeholder:text-slate-400 focus:ring-2 focus:ring-sky-400"
         />
 
         <motion.button
           type="submit"
-          className="h-11 rounded-xl bg-gradient-to-r from-blue-600 to-cyan-500 px-5 text-sm font-semibold text-white shadow-md"
-          whileHover={{ scale: 1.03 }}
+          className="h-11 rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 px-5 text-sm font-semibold text-white shadow-md shadow-cyan-200"
+          whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.97 }}
         >
           Compare
