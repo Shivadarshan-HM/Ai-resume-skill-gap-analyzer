@@ -28,10 +28,8 @@ const ROUTE_LABELS = {
   "/dashboard/settings": "Settings"
 };
 
-function Dashboard({ user, onLogout }) {
+function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoading, setAnalysisLoading }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [analysisData, setAnalysisData] = useState(null);
-  const [analysisLoading, setAnalysisLoading] = useState(false);
   const location = useLocation();
 
   const initials = user?.full_name
@@ -251,7 +249,7 @@ function Dashboard({ user, onLogout }) {
     } else if (location.pathname === "/dashboard/settings") {
       return renderSettings();
     }
-    return null;
+    return renderHome();
   };
 
   return (
@@ -265,7 +263,6 @@ function Dashboard({ user, onLogout }) {
       <div className="lg:pl-80">
         <main className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
 
-          {/* Header */}
           <motion.header
             className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm sm:p-6"
             initial={{ opacity: 0, y: 18 }}

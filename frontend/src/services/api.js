@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:5001";
+const BASE_URL = "http://127.0.0.1:5000";
 
 function getToken() {
   return localStorage.getItem("token");
@@ -26,7 +26,7 @@ export async function analyzeResumeUpload({ file, role, prompt }) {
   formData.append("role", role);
   if (prompt) formData.append("prompt", prompt);
 
-  const res = await fetch(`${BASE_URL}/analyze-upload`, {
+  const res = await fetch(`${BASE_URL}/analyze-resume`, {  // ← fixed: was /analyze-upload
     method: "POST",
     headers: {
       Authorization: `Bearer ${getToken()}`,
@@ -47,6 +47,18 @@ export async function register({ fullName, email, password }) {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "Registration failed.");
+  return data;
+}
+
+// Send OTP
+export async function sendOtp({ email }) {
+  const res = await fetch(`${BASE_URL}/send-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "OTP send failed.");
   return data;
 }
 
@@ -71,5 +83,41 @@ export async function verifyOtp({ email, otp }) {
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || "OTP verification failed.");
+  return data;
+}
+
+// Forgot Password - Send OTP
+export async function forgotPasswordSendOtp({ email }) {
+  const res = await fetch(`${BASE_URL}/forgot-password/send-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Failed to send OTP.");
+  return data;
+}
+
+// Forgot Password - Verify OTP
+export async function forgotPasswordVerifyOtp({ email, otp }) {
+  const res = await fetch(`${BASE_URL}/forgot-password/verify-otp`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "OTP verification failed.");
+  return data;
+}
+
+// Forgot Password - Reset
+export async function resetPassword({ email, otp, newPassword }) {
+  const res = await fetch(`${BASE_URL}/forgot-password/reset`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, otp, new_password: newPassword }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "Password reset failed.");
   return data;
 }

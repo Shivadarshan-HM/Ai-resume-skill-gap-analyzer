@@ -7,6 +7,8 @@ import Dashboard from "./components/Dashboard";
 function App() {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
+  const [analysisData, setAnalysisData] = useState(null);
+  const [analysisLoading, setAnalysisLoading] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -24,15 +26,26 @@ function App() {
 
   function handleLoginSuccess(userData) {
     setUser(userData);
+    setAnalysisData(null); // Reset analysis on new login
   }
 
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     setUser(null);
+    setAnalysisData(null);
   }
 
   if (checking) return null;
+
+  const dashboardProps = {
+    user,
+    onLogout: handleLogout,
+    analysisData,
+    setAnalysisData,
+    analysisLoading,
+    setAnalysisLoading,
+  };
 
   return (
     <BrowserRouter>
@@ -47,19 +60,11 @@ function App() {
         />
         <Route
           path="/login"
-          element={
-            user
-              ? <Navigate to="/dashboard" replace />
-              : <Login onLoginSuccess={handleLoginSuccess} />
-          }
+          element={user ? <Navigate to="/dashboard" replace /> : <Login onLoginSuccess={handleLoginSuccess} />}
         />
         <Route
           path="/dashboard/*"
-          element={
-            user
-              ? <Dashboard user={user} onLogout={handleLogout} />
-              : <Navigate to="/login" replace />
-          }
+          element={user ? <Dashboard {...dashboardProps} /> : <Navigate to="/login" replace />}
         />
         <Route path="*" element={<Navigate to={user ? "/dashboard" : "/"} replace />} />
       </Routes>
