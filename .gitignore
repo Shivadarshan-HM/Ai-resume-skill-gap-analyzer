@@ -11,3 +11,8 @@ frontend/build/
 # OS / Editor
 .DS_Store
 Thumbs.db
+
+# Backend
+backend/instance/
+backend/.env
+*.db
