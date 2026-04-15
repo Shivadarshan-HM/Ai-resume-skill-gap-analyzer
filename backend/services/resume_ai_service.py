@@ -80,6 +80,7 @@ def build_analysis(resume_text: str, prompt: str, role: str = "") -> dict:
         ]
 
     response = {
+        "role": role,
         "analysis": analysis,
         "highlighted_skills": highlighted_skills[:12],
         "suggestions": suggestions

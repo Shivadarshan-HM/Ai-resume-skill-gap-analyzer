@@ -10,12 +10,7 @@ import Sidebar from "./Sidebar";
 import SkillRoadmap from "./SkillRoadmap";
 import StatsCard from "./StatsCard";
 
-const ROLE_OPTIONS = [
-  "Frontend Developer",
-  "Backend Developer",
-  "Data Scientist",
-  "Full Stack Developer"
-];
+const ROLE_OPTIONS = ["Frontend Developer", "Backend Developer", "Data Scientist", "Full Stack Developer"];
 
 const ROUTE_LABELS = {
   "/dashboard": "Overview",
@@ -93,20 +88,12 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
   const [resourceQuery, setResourceQuery] = useState("");
   const location = useLocation();
 
-  const initials = user?.full_name
-    ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : "U";
-
+  const initials = user?.full_name ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "U";
   const score = analysisData?.match_score ?? 0;
   const foundCount = analysisData?.found_skills?.length ?? 0;
   const missingCount = analysisData?.missing_skills?.length ?? 0;
   const suggestionsCount = analysisData?.suggestions?.length ?? 0;
-
-  const quickPrompts = [
-    "Give me 5 ATS keywords for my role",
-    "Which projects should I add first?",
-    "How can I improve match score by 15%?"
-  ];
+  const quickPrompts = ["Give me 5 ATS keywords for my role", "Which projects should I add first?", "How can I improve match score by 15%?"];
 
   const activePath = location.pathname === "/dashboard/" ? "/dashboard" : location.pathname;
   const activeSection = ROUTE_LABELS[activePath] || "Overview";
@@ -148,11 +135,7 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
 
         <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
           <div className="space-y-6">
-            <ResumeAnalyzer
-              roles={ROLE_OPTIONS}
-              onAnalysisComplete={setAnalysisData}
-              onLoadingChange={setAnalysisLoading}
-            />
+            <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={setAnalysisData} onLoadingChange={setAnalysisLoading} />
             <JobMatch analysisData={analysisData} />
           </div>
 
@@ -169,21 +152,14 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
     const query = resourceQuery.trim().toLowerCase();
     const filteredResources = LEARNING_RESOURCES.filter((item) => {
       if (!query) return true;
-      return (
-        item.title.toLowerCase().includes(query)
-        || item.tag.toLowerCase().includes(query)
-        || item.detail.toLowerCase().includes(query)
-        || item.topics.some((topic) => topic.includes(query))
-      );
+      return item.title.toLowerCase().includes(query) || item.tag.toLowerCase().includes(query) || item.detail.toLowerCase().includes(query) || item.topics.some((topic) => topic.includes(query));
     });
 
     return (
       <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <h3 className="text-xl font-semibold text-slate-900">Learning Resources</h3>
         <p className="mt-1 text-sm text-slate-500">Type a skill or topic (for example: react, python, aws, system design) and open useful external learning blogs or websites.</p>
-        <label htmlFor="resource-search" className="mt-4 block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">
-          Search by skill or topic
-        </label>
+        <label htmlFor="resource-search" className="mt-4 block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Search by skill or topic</label>
         <input
           id="resource-search"
           type="text"
@@ -193,9 +169,7 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
           className="mt-2 h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
         />
 
-        <p className="mt-3 text-xs text-slate-500">
-          {filteredResources.length} resource{filteredResources.length === 1 ? "" : "s"} found
-        </p>
+        <p className="mt-3 text-xs text-slate-500">{filteredResources.length} resource{filteredResources.length === 1 ? "" : "s"} found</p>
 
         <div className="mt-5 grid gap-4 sm:grid-cols-2">
           {filteredResources.map((item) => (
@@ -223,12 +197,7 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
   }
 
   function renderActivity() {
-    const timeline = [
-      "Uploaded resume and selected target role",
-      "Generated ATS score and improvement suggestions",
-      "Compared resume with job description keywords",
-      "Created roadmap for next 4 learning priorities"
-    ];
+    const timeline = ["Uploaded resume and selected target role", "Generated ATS score and improvement suggestions", "Compared resume with job description keywords", "Created roadmap for next 4 learning priorities"];
 
     return (
       <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -265,85 +234,41 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
     );
   }
 
-  // Determine which component to show based on current path
-  const renderContent = () => {
-    if (location.pathname === "/dashboard" || location.pathname === "/dashboard/") {
-      return renderHome();
-    } else if (location.pathname === "/dashboard/analyze") {
-      return (
-        <motion.div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
-          <ResumeAnalyzer
-            roles={ROLE_OPTIONS}
-            onAnalysisComplete={setAnalysisData}
-            onLoadingChange={setAnalysisLoading}
-          />
-          <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm">
-            <h3 className="text-lg font-semibold text-slate-900">Optimization Tips</h3>
-            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-slate-600">
-              <li>Keep experience bullets short and measurable.</li>
-              <li>Use role-specific tools in project descriptions.</li>
-              <li>Mirror important wording from job descriptions.</li>
-            </ul>
-          </section>
-        </motion.div>
-      );
-    } else if (location.pathname === "/dashboard/chat") {
-      return (
-        <motion.div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
-          <ChatAssistant analysisData={analysisData} />
-          <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm">
-            <h3 className="text-lg font-semibold text-slate-900">Prompt Starter Pack</h3>
-            <div className="mt-4 space-y-2">
-              {quickPrompts.map((prompt) => (
-                <p key={prompt} className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">{prompt}</p>
-              ))}
-            </div>
-          </section>
-        </motion.div>
-      );
-    } else if (location.pathname === "/dashboard/ats") {
-      return (
-        <motion.div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
-          <ATSCard analysisData={analysisData} loading={analysisLoading} />
-          <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm">
-            <h3 className="text-lg font-semibold text-slate-900">ATS Benchmark</h3>
-            <div className="mt-4 space-y-3 text-sm text-slate-700">
-              <p className="rounded-xl bg-emerald-50 px-3 py-2">80-100: Recruiter-ready profile</p>
-              <p className="rounded-xl bg-amber-50 px-3 py-2">60-79: Good base, needs better keywords</p>
-              <p className="rounded-xl bg-rose-50 px-3 py-2">0-59: Prioritize formatting and role terms</p>
-            </div>
-          </section>
-        </motion.div>
-      );
-    } else if (location.pathname === "/dashboard/job-match") {
-      return (
-        <motion.div className="grid gap-6 xl:grid-cols-[1.6fr_1fr]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
-          <JobMatch analysisData={analysisData} />
-          <section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm">
-            <h3 className="text-lg font-semibold text-slate-900">Job Match Checklist</h3>
-            <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-slate-600">
-              <li>Include top 5 keywords from the job description.</li>
-              <li>Add one project mapped to role responsibilities.</li>
-              <li>Quantify impact in at least 3 bullet points.</li>
-            </ul>
-          </section>
-        </motion.div>
-      );
-    } else if (location.pathname === "/dashboard/roadmap") {
-      return (
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.45 }}>
-          <SkillRoadmap analysisData={analysisData} />
-        </motion.div>
-      );
-    } else if (location.pathname === "/dashboard/resources") {
+  function renderContent() {
+    if (activePath === "/dashboard/analyze") {
+      return <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={setAnalysisData} onLoadingChange={setAnalysisLoading} />;
+    }
+
+    if (activePath === "/dashboard/chat") {
+      return <ChatAssistant quickPrompts={quickPrompts} />;
+    }
+
+    if (activePath === "/dashboard/ats") {
+      return <ATSCard analysisData={analysisData} loading={analysisLoading} />;
+    }
+
+    if (activePath === "/dashboard/job-match") {
+      return <JobMatch analysisData={analysisData} />;
+    }
+
+    if (activePath === "/dashboard/roadmap") {
+      return <SkillRoadmap analysisData={analysisData} />;
+    }
+
+    if (activePath === "/dashboard/resources") {
       return <Resources />;
-    } else if (location.pathname === "/dashboard/activity") {
+    }
+
+    if (activePath === "/dashboard/activity") {
       return renderActivity();
-    } else if (location.pathname === "/dashboard/settings") {
+    }
+
+    if (activePath === "/dashboard/settings") {
       return renderSettings();
     }
+
     return renderHome();
-  };
+  }
 
   return (
     <div className="relative min-h-screen bg-[radial-gradient(circle_at_10%_10%,#d8f4ff_0%,transparent_33%),radial-gradient(circle_at_85%_25%,#d9ecff_0%,transparent_35%),linear-gradient(140deg,#f8fcff_0%,#eef5fb_45%,#edf7ff_100%)]">
@@ -355,66 +280,53 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
 
       <div className="lg:pl-80">
         <main className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
-
           <motion.header
             className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm sm:p-6"
             initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.45 }}
           >
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-100 bg-[linear-gradient(110deg,#ffffff_0%,#f3fbff_55%,#ecf8ff_100%)] px-4 py-3">
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Active Section: {activeSection}</p>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-sky-100 bg-white px-3 py-1 text-xs font-medium text-slate-700">Match: {score}%</span>
-                <span className="rounded-full border border-sky-100 bg-white px-3 py-1 text-xs font-medium text-slate-700">Missing: {missingCount}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setSidebarOpen(true)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-slate-600 transition hover:bg-gray-50 lg:hidden"
-                >
-                  <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
-                    <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-                  </svg>
-                </button>
-                <div>
-                  <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
-                    Welcome, {user?.full_name?.split(" ")[0] || "User"} 👋
-                  </h1>
-                  <p className="mt-1 text-sm text-slate-500">Build a stronger resume with focused AI guidance and ATS friendly formatting</p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                {/* User avatar + logout */}
-                <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
-                  <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-xs font-semibold text-white">
-                    {initials}
-                  </span>
-                  <div className="hidden sm:block">
-                    <p className="text-sm font-medium text-slate-800">{user?.full_name || "User"}</p>
-                    <p className="text-xs text-slate-500">{user?.email || ""}</p>
+            <div className="space-y-4">
+              {activePath === "/dashboard" && (
+                <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                  <div className="flex items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setSidebarOpen(true)}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-white text-slate-600 transition hover:bg-gray-50 lg:hidden"
+                      aria-label="Open sidebar"
+                    >
+                      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+                        <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+                      </svg>
+                    </button>
+                    <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
+                      <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-xs font-semibold text-white">{initials}</span>
+                      <div>
+                        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Welcome, {user?.full_name?.split(" ")[0] || "User"} 👋</h1>
+                        <p className="mt-1 text-sm text-slate-500">Build a stronger resume with focused AI guidance and ATS friendly formatting</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <button
-                  type="button"
-                  onClick={onLogout}
-                  className="rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:bg-red-50 hover:text-red-600 hover:border-red-200"
-                >
-                  Logout
-                </button>
+                  <button
+                    type="button"
+                    onClick={onLogout}
+                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="rounded-full border border-sky-100 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Active Section: {activeSection}</span>
+                <span className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">Missing Skills: {missingCount}</span>
               </div>
             </div>
           </motion.header>
 
-          {/* Main content */}
           {renderContent()}
-
         </main>
       </div>
     </div>

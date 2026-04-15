@@ -5,6 +5,8 @@ import Landing from "./pages/Landing";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./components/Dashboard";
 
+const API_URL = "http://127.0.0.1:5000";
+
 function App() {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
@@ -12,17 +14,46 @@ function App() {
   const [analysisLoading, setAnalysisLoading] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
-    if (token && savedUser) {
+    async function restoreSession() {
+      const token = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("user");
+
+      if (!token || !savedUser) {
+        setChecking(false);
+        return;
+      }
+
       try {
-        setUser(JSON.parse(savedUser));
+        const res = await fetch(`${API_URL}/auth/me`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!res.ok) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setUser(null);
+          setChecking(false);
+          return;
+        }
+
+        const data = await res.json();
+        setUser(data.user || JSON.parse(savedUser));
       } catch {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
+        // If backend is temporarily unreachable, keep prior session state.
+        try {
+          setUser(JSON.parse(savedUser));
+        } catch {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+        }
+      } finally {
+        setChecking(false);
       }
     }
-    setChecking(false);
+
+    restoreSession();
   }, []);
 
   function handleLoginSuccess(userData) {

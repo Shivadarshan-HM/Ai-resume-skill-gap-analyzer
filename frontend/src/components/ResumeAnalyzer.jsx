@@ -33,8 +33,9 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
 
     try {
       const data = await analyzeResumeUpload({ file, prompt, role });
-      setAnalysisOutput(data);
-      onAnalysisComplete?.(data);
+      const enrichedData = { ...data, role };
+      setAnalysisOutput(enrichedData);
+      onAnalysisComplete?.(enrichedData);
     } catch (apiError) {
       onAnalysisComplete?.(null);
       setAnalysisOutput(null);

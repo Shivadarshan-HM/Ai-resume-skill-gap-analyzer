@@ -54,7 +54,11 @@ function ChatAssistant({ analysisData }) {
       });
 
       const data = await res.json();
-      const reply = data.reply || data.error || "Sorry, I could not process that.";
+      const reply =
+        data.reply ||
+        data.error ||
+        data.msg ||
+        (res.status === 401 ? "Please login again to use chat." : "Sorry, I could not process that.");
 
       setMessages((prev) => [
         ...prev,

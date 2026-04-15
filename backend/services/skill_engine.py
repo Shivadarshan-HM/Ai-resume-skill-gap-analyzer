@@ -85,6 +85,7 @@ def analyze_resume_skills(resume: str, role: str) -> dict:
 
     if not required_skills:
         return {
+            "role": role,
             "match_score": 0,
             "found_skills": [],
             "missing_skills": [],
@@ -102,6 +103,7 @@ def analyze_resume_skills(resume: str, role: str) -> dict:
     summary = get_ai_summary(role, match_score, found_skills, missing_skills)
 
     return {
+        "role": role,
         "match_score": match_score,
         "found_skills": found_skills,
         "missing_skills": missing_skills,

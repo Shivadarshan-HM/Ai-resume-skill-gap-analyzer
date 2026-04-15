@@ -5,7 +5,21 @@ import os
 
 chat_bp = Blueprint("chat", __name__)
 
-client = Groq(api_key=os.getenv("GROQ_API_KEY"))
+_groq_client = None
+
+
+def get_groq_client():
+    """Create the Groq client lazily so app startup doesn't fail without env vars."""
+    global _groq_client
+    if _groq_client is not None:
+        return _groq_client
+
+    api_key = os.getenv("GROQ_API_KEY", "").strip()
+    if not api_key:
+        return None
+
+    _groq_client = Groq(api_key=api_key)
+    return _groq_client
 
 
 @chat_bp.route("/chat", methods=["POST"])
@@ -38,6 +52,10 @@ Use this context to give personalized advice.
     system_prompt = f"""You are an expert AI resume coach. Help users improve their resumes, skills, and career prospects.
 Be concise, practical, and encouraging. Give actionable advice in 2-3 sentences max.
 {context}"""
+
+    client = get_groq_client()
+    if client is None:
+        return jsonify({"error": "Chat service is not configured. Set GROQ_API_KEY in backend environment."}), 503
 
     try:
         response = client.chat.completions.create(
