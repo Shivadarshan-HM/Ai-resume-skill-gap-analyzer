@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import resourcesData from "../data/resources.json";
 
@@ -12,16 +12,30 @@ const TYPE_COLORS = {
   Guide: "bg-cyan-50 text-cyan-700 border-cyan-200",
 };
 
-function Resources() {
+function Resources({ analysisData }) {
   const roles = Object.keys(resourcesData);
   const [selectedRole, setSelectedRole] = useState(roles[0]);
   const [selectedSkill, setSelectedSkill] = useState("All");
 
+  // ✅ Auto-select role whenever analysisData changes
+  useEffect(() => {
+    if (analysisData?.target_role) {
+      const matched = roles.find(
+        (r) => r.toLowerCase() === analysisData.target_role.toLowerCase()
+      );
+      if (matched) {
+        setSelectedRole(matched);
+        setSelectedSkill("All");
+      }
+    }
+  }, [analysisData]);
+
   const resources = resourcesData[selectedRole] || [];
   const skills = ["All", ...new Set(resources.map((r) => r.skill))];
-  const filtered = selectedSkill === "All"
-    ? resources
-    : resources.filter((r) => r.skill === selectedSkill);
+  const filtered =
+    selectedSkill === "All"
+      ? resources
+      : resources.filter((r) => r.skill === selectedSkill);
 
   return (
     <motion.div
@@ -30,7 +44,6 @@ function Resources() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      {/* Header */}
       <div className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm lg:p-7">
         <h3 className="text-lg font-semibold text-slate-900">📚 Learning Resources</h3>
         <p className="mt-1 text-sm text-slate-500">
@@ -39,19 +52,36 @@ function Resources() {
 
         {/* Role Tabs */}
         <div className="mt-4 flex flex-wrap gap-2">
-          {roles.map((role) => (
-            <button
-              key={role}
-              onClick={() => { setSelectedRole(role); setSelectedSkill("All"); }}
-              className={`rounded-xl border px-4 py-2 text-sm font-medium transition duration-200 ${
-                selectedRole === role
-                  ? "border-blue-600 bg-blue-600 text-white shadow-md"
-                  : "border-gray-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600"
-              }`}
-            >
-              {role}
-            </button>
-          ))}
+          {roles.map((role) => {
+            const isPrimary =
+              analysisData?.target_role &&
+              role.toLowerCase() === analysisData.target_role.toLowerCase();
+
+            return (
+              <button
+                key={role}
+                onClick={() => {
+                  setSelectedRole(role);
+                  setSelectedSkill("All");
+                }}
+                className={`flex items-center gap-1.5 rounded-xl border px-4 py-2 text-sm font-medium transition duration-200 ${
+                  selectedRole === role
+                    ? "border-blue-600 bg-blue-600 text-white shadow-md"
+                    : isPrimary
+                    ? "border-yellow-400 bg-yellow-50 text-yellow-800 hover:border-yellow-500"
+                    : "border-gray-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600"
+                }`}
+              >
+                {isPrimary && <span>⭐</span>}
+                {role}
+                {isPrimary && (
+                  <span className="rounded-full bg-yellow-400 px-1.5 py-0.5 text-xs font-semibold text-yellow-900">
+                    Primary
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {/* Skill Filter */}
@@ -80,7 +110,7 @@ function Resources() {
             href={resource.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col justify-between rounded-2xl border border-white/70 bg-white/80 p-5 shadow-md backdrop-blur-sm transition duration-200 hover:shadow-lg hover:-translate-y-0.5"
+            className="flex flex-col justify-between rounded-2xl border border-white/70 bg-white/80 p-5 shadow-md backdrop-blur-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -103,7 +133,9 @@ function Resources() {
 
             <div className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600">
               <span>Open →</span>
-              <span className="truncate text-slate-400">{resource.url.replace("https://", "")}</span>
+              <span className="truncate text-slate-400">
+                {resource.url.replace("https://", "")}
+              </span>
             </div>
           </motion.a>
         ))}
