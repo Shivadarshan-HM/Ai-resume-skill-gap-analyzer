@@ -18,97 +18,97 @@ function Resources() {
   const [selectedSkill, setSelectedSkill] = useState("All");
 
   const resources = resourcesData[selectedRole] || [];
-  const skills = ["All", ...new Set(resources.map((resource) => resource.skill))];
-  const filtered =
-    selectedSkill === "All"
-      ? resources
-      : resources.filter((resource) => resource.skill === selectedSkill);
+  const skills = ["All", ...new Set(resources.map((r) => r.skill))];
+  const filtered = selectedSkill === "All"
+    ? resources
+    : resources.filter((r) => r.skill === selectedSkill);
 
   return (
-    <div className="space-y-6">
-      <motion.section
-        className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm"
-        initial={{ opacity: 0, y: 16 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        <h2 className="text-2xl font-semibold text-slate-900">📚 Learning Resources</h2>
-        <p className="mt-2 text-sm text-slate-500">
+    <motion.div
+      className="space-y-6"
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+    >
+      {/* Header */}
+      <div className="rounded-3xl border border-white/70 bg-white/80 p-5 shadow-lg backdrop-blur-sm lg:p-7">
+        <h3 className="text-lg font-semibold text-slate-900">📚 Learning Resources</h3>
+        <p className="mt-1 text-sm text-slate-500">
           Curated links to the best free websites, docs, and courses — by role.
         </p>
-      </motion.section>
 
-      <div className="flex flex-wrap gap-2">
-        {roles.map((role) => {
-          const active = role === selectedRole;
-          return (
+        {/* Role Tabs */}
+        <div className="mt-4 flex flex-wrap gap-2">
+          {roles.map((role) => (
             <button
               key={role}
-              type="button"
-              onClick={() => {
-                setSelectedRole(role);
-                setSelectedSkill("All");
-              }}
-              className={
-                active
-                  ? "rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white"
-                  : "rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
-              }
+              onClick={() => { setSelectedRole(role); setSelectedSkill("All"); }}
+              className={`rounded-xl border px-4 py-2 text-sm font-medium transition duration-200 ${
+                selectedRole === role
+                  ? "border-blue-600 bg-blue-600 text-white shadow-md"
+                  : "border-gray-200 bg-white text-slate-600 hover:border-blue-300 hover:text-blue-600"
+              }`}
             >
               {role}
             </button>
-          );
-        })}
-      </div>
+          ))}
+        </div>
 
-      <div className="flex flex-wrap gap-2">
-        {skills.map((skill) => {
-          const active = skill === selectedSkill;
-          return (
+        {/* Skill Filter */}
+        <div className="mt-3 flex flex-wrap gap-2">
+          {skills.map((skill) => (
             <button
               key={skill}
-              type="button"
               onClick={() => setSelectedSkill(skill)}
-              className={
-                active
-                  ? "rounded-full bg-cyan-600 px-3 py-1.5 text-xs font-medium text-white"
-                  : "rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-700"
-              }
+              className={`rounded-full border px-3 py-1 text-xs font-medium transition duration-200 ${
+                selectedSkill === skill
+                  ? "border-cyan-500 bg-cyan-500 text-white"
+                  : "border-gray-200 bg-gray-50 text-slate-500 hover:border-cyan-300 hover:text-cyan-600"
+              }`}
             >
               {skill}
             </button>
-          );
-        })}
+          ))}
+        </div>
       </div>
 
+      {/* Resource Cards */}
       <div className="grid gap-4 sm:grid-cols-2">
-        {filtered.map((resource, index) => {
-          const badgeClass = TYPE_COLORS[resource.type] || "bg-slate-100 text-slate-700 border-slate-200";
-          return (
-            <motion.a
-              key={`${resource.title}-${resource.url}`}
-              href={resource.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-            >
-              <div className="flex items-start justify-between gap-3">
-                <h3 className="text-base font-semibold text-slate-900">{resource.title}</h3>
-                <span className={`shrink-0 rounded-full border px-2 py-1 text-xs font-medium ${badgeClass}`}>
+        {filtered.map((resource, index) => (
+          <motion.a
+            key={resource.url}
+            href={resource.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-col justify-between rounded-2xl border border-white/70 bg-white/80 p-5 shadow-md backdrop-blur-sm transition duration-200 hover:shadow-lg hover:-translate-y-0.5"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.05 }}
+          >
+            <div>
+              <div className="flex items-start justify-between gap-2">
+                <p className="text-sm font-semibold leading-snug text-slate-800">
+                  {resource.title}
+                </p>
+                <span
+                  className={`shrink-0 rounded-full border px-2 py-0.5 text-xs font-medium ${
+                    TYPE_COLORS[resource.type] || "bg-gray-50 text-gray-600 border-gray-200"
+                  }`}
+                >
                   {resource.type}
                 </span>
               </div>
-              <p className="mt-2 text-xs text-slate-400">{resource.skill}</p>
-              <p className="mt-3 truncate text-sm font-medium text-sky-700">
-                Open → {resource.url}
-              </p>
-            </motion.a>
-          );
-        })}
+              <p className="mt-1.5 text-xs text-slate-400">{resource.skill}</p>
+            </div>
+
+            <div className="mt-3 flex items-center gap-1 text-xs font-medium text-blue-600">
+              <span>Open →</span>
+              <span className="truncate text-slate-400">{resource.url.replace("https://", "")}</span>
+            </div>
+          </motion.a>
+        ))}
       </div>
-    </div>
+    </motion.div>
   );
 }
 
