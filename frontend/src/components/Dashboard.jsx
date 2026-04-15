@@ -127,23 +127,45 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
         </motion.section>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <StatsCard label="Skill Match" value={`${score}%`} hint="Role-fit score" tone="blue" delay={0.05} />
-          <StatsCard label="Skills Found" value={foundCount} hint="Detected in resume" tone="green" delay={0.1} />
-          <StatsCard label="Skills Missing" value={missingCount} hint="Need focused work" tone="red" delay={0.15} />
-          <StatsCard label="Suggestions" value={suggestionsCount} hint="Action points available" tone="blue" delay={0.2} />
+          <StatsCard label="Skill Match" value={`${score}%`} hint="Current role-fit status" tone="blue" delay={0.05} />
+          <StatsCard label="Skills Found" value={foundCount} hint="Detected from latest analysis" tone="green" delay={0.1} />
+          <StatsCard label="Skills Missing" value={missingCount} hint="Top priorities to improve" tone="red" delay={0.15} />
+          <StatsCard label="Suggestions" value={suggestionsCount} hint="Action tips available" tone="blue" delay={0.2} />
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-[1.5fr_1fr]">
-          <div className="space-y-6">
-            <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={setAnalysisData} onLoadingChange={setAnalysisLoading} />
-            <JobMatch analysisData={analysisData} />
-          </div>
+        <motion.section
+          className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Website Information</p>
+          <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">How this platform helps your career growth</h3>
+          <p className="mt-3 text-sm leading-7 text-slate-600">
+            AI Resume Skill Gap Analyzer helps you improve resume quality and role-fit with a structured workflow.
+            Use the sidebar sections to analyze your resume, check ATS readiness, compare job match, and follow
+            a domain roadmap based on your target role.
+          </p>
 
-          <div className="space-y-6">
-            <ATSCard analysisData={analysisData} loading={analysisLoading} />
-            <SkillRoadmap analysisData={analysisData} />
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            <article className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+              <h4 className="text-sm font-semibold text-slate-900">Analyze Resume</h4>
+              <p className="mt-1 text-sm text-slate-600">Upload your resume and select a role to get skill-match score, found skills, and missing skills.</p>
+            </article>
+            <article className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+              <h4 className="text-sm font-semibold text-slate-900">AI Chat & Suggestions</h4>
+              <p className="mt-1 text-sm text-slate-600">Ask follow-up questions and receive practical recommendations to strengthen resume impact.</p>
+            </article>
+            <article className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+              <h4 className="text-sm font-semibold text-slate-900">ATS & Job Match</h4>
+              <p className="mt-1 text-sm text-slate-600">Check ATS performance and compare with job requirements for targeted improvements.</p>
+            </article>
+            <article className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+              <h4 className="text-sm font-semibold text-slate-900">Role Roadmap</h4>
+              <p className="mt-1 text-sm text-slate-600">Follow a role-specific roadmap to close skill gaps and improve interview readiness.</p>
+            </article>
           </div>
-        </div>
+        </motion.section>
       </div>
     );
   }
@@ -321,7 +343,7 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
               )}
 
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-sky-100 bg-white px-3 py-1 text.xs font-semibold uppercase tracking-[0.16em] text-sky-700">Active Section: {activeSection}</span>
+                <span className="rounded-full border border-sky-100 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Active Section: {activeSection}</span>
                 <span className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">Missing Skills: {missingCount}</span>
               </div>
             </div>
