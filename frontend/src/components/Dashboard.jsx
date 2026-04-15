@@ -256,7 +256,8 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
     }
 
     if (activePath === "/dashboard/resources") {
-      return <Resources />;
+      // ✅ FIX: pass analysisData so Resources auto-selects the target role
+      return <Resources analysisData={analysisData} />;
     }
 
     if (activePath === "/dashboard/activity") {
@@ -320,7 +321,7 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
               )}
 
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-sky-100 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Active Section: {activeSection}</span>
+                <span className="rounded-full border border-sky-100 bg-white px-3 py-1 text.xs font-semibold uppercase tracking-[0.16em] text-sky-700">Active Section: {activeSection}</span>
                 <span className="rounded-full border border-rose-100 bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-700">Missing Skills: {missingCount}</span>
               </div>
             </div>

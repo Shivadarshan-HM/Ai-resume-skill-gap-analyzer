@@ -34,7 +34,8 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
     try {
       const data = await analyzeResumeUpload({ file, prompt, role });
       setAnalysisOutput(data);
-      onAnalysisComplete?.(data);
+      // ✅ FIX: attach target_role so Resources & JobMatch auto-select it
+      onAnalysisComplete?.({ ...data, target_role: role });
     } catch (apiError) {
       onAnalysisComplete?.(null);
       setAnalysisOutput(null);
@@ -107,7 +108,9 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
         </motion.button>
 
         {error ? (
-          <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
+          <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">
+            {error}
+          </p>
         ) : null}
       </form>
 
@@ -126,14 +129,19 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange }) {
           transition={{ duration: 0.35 }}
         >
           <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">AI Response</h4>
-          <p className="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">{analysisOutput.analysis}</p>
+          <p className="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">
+            {analysisOutput.analysis}
+          </p>
 
           {analysisOutput.highlighted_skills?.length ? (
             <div className="mt-4">
               <p className="text-xs font-semibold uppercase tracking-[0.1em] text-emerald-700">Skill Insights</p>
               <div className="mt-2 flex flex-wrap gap-2">
                 {analysisOutput.highlighted_skills.map((skill) => (
-                  <span key={skill} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">
+                  <span
+                    key={skill}
+                    className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700"
+                  >
                     {skill}
                   </span>
                 ))}
