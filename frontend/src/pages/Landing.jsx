@@ -464,8 +464,8 @@ function Landing() {
               </a>
             </div>
           </div>
-          <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
-            <span>For any issues, email the CVisionary support team.</span>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <p>&copy; {new Date().getFullYear()} CVisionary. All rights reserved.</p>
           </div>
         </footer>
       </section>
