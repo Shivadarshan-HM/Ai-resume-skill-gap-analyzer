@@ -419,7 +419,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
 
   function renderContent() {
     if (activePath === "/dashboard/analyze") {
-      return <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={setAnalysisData} onLoadingChange={setAnalysisLoading} />;
+      return <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={setAnalysisData} onLoadingChange={setAnalysisLoading} analysisData={analysisData} />;
     }
 
     if (activePath === "/dashboard/chat") {
