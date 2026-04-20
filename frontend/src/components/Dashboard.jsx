@@ -285,7 +285,24 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   function renderSettings() {
     const hasProfile = savedProfile && (savedProfile.full_name || savedProfile.phone || savedProfile.bio);
     return (
+<<<<<<< HEAD
       <motion.section className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+=======
+      <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="text-xl font-semibold text-slate-900">Settings - Bio Data</h3>
+            <p className="mt-1 text-sm text-slate-500">Add your personal information so your profile is complete and easier to manage.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 text-sm font-medium text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+          >
+            Logout
+          </button>
+        </div>
+>>>>>>> 2957d9d5432fd19a0c0e8116f2b9db1509486fa2
 
         {/* Saved Profile Card — visible when profile exists and not editing */}
         {hasProfile && !editMode && (

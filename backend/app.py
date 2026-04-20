@@ -9,7 +9,6 @@ from config import Config
 from database import db
 from services.email_service import mail
 from routes.analyze import analyze_bp
-from routes.auth import auth_bp
 from routes.chat import chat_bp
 
 
@@ -23,7 +22,6 @@ def create_app() -> Flask:
     mail.init_app(app)
 
     app.register_blueprint(analyze_bp)
-    app.register_blueprint(auth_bp)
     app.register_blueprint(chat_bp)
 
     with app.app_context():
