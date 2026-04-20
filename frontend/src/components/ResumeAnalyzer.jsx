@@ -1,6 +1,16 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { analyzeResumeUpload } from "../services/api";
+
+function toSuggestionText(item) {
+  if (typeof item === "string") return item;
+  if (!item || typeof item !== "object") return "";
+
+  const skill = item.skill ? `${item.skill}: ` : "";
+  const how = item.how_to_learn || item.tip || "Improve this area with focused practice.";
+  const priority = item.priority ? ` (Priority: ${item.priority})` : "";
+  return `${skill}${how}${priority}`.trim();
+}
 
 function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisData }) {
   const [file, setFile] = useState(null);
@@ -11,6 +21,26 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
 
   // Use persisted analysisData as output if available
   const analysisOutput = analysisData;
+
+  const summaryStats = useMemo(() => {
+    if (!analysisOutput) {
+      return {
+        score: 0,
+        required: 0,
+        found: 0,
+        missing: 0,
+        suggestions: 0,
+      };
+    }
+
+    return {
+      score: analysisOutput.match_score ?? 0,
+      required: analysisOutput.required_skills?.length ?? 0,
+      found: analysisOutput.found_skills?.length ?? 0,
+      missing: analysisOutput.missing_skills?.length ?? 0,
+      suggestions: analysisOutput.suggestions?.length ?? 0,
+    };
+  }, [analysisOutput]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -42,7 +72,7 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
 
   return (
     <motion.section
-      className="rounded-3xl border border-white/80 bg-white/85 p-5 shadow-lg backdrop-blur-sm lg:p-7"
+      className="cv-panel space-y-6"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, delay: 0.15 }}
@@ -51,15 +81,17 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
       <h3 className="text-lg font-semibold text-slate-900">Resume Upload + AI Analysis</h3>
       <p className="mt-1 text-sm text-slate-500">Upload your resume and ask AI for focused career feedback.</p>
 
-      <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+      <form onSubmit={handleSubmit} className="mt-5 space-y-5">
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-slate-700">Resume File</span>
           <input
             type="file"
             accept=".pdf,.doc,.docx,.txt"
             onChange={(event) => setFile(event.target.files?.[0] || null)}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 shadow-sm file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-sky-700"
+            className="cv-input shadow-sm file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-sky-700"
+            aria-describedby="resume-file-help"
           />
+          <p id="resume-file-help" className="mt-2 text-xs text-slate-500">Supported formats: PDF, DOC, DOCX, TXT.</p>
           {analysisOutput?.role && !file && (
             <p className="mt-1 text-xs text-slate-400">Last analyzed: <span className="text-sky-600 font-medium">{analysisOutput.role}</span></p>
           )}
@@ -70,7 +102,7 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
           <select
             value={role}
             onChange={(event) => setRole(event.target.value)}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 focus:ring-2 focus:ring-sky-400"
+            className="cv-input"
           >
             <option value="">Choose a role</option>
             {roles.map((roleName) => (
@@ -86,14 +118,14 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
             onChange={(event) => setPrompt(event.target.value)}
             placeholder="Ask AI about your resume..."
             rows={4}
-            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-slate-700 outline-none transition duration-300 placeholder:text-slate-400 focus:ring-2 focus:ring-sky-400"
+            className="cv-input min-h-28"
           />
         </label>
 
         <motion.button
           type="submit"
           disabled={loading}
-          className="h-11 w-full rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 text-sm font-semibold text-white shadow-md shadow-cyan-200 transition duration-300 disabled:cursor-not-allowed disabled:opacity-70"
+          className="cv-btn-primary h-11 w-full"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -101,12 +133,12 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
         </motion.button>
 
         {error && (
-          <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</p>
+          <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700" role="alert" aria-live="assertive">{error}</p>
         )}
       </form>
 
       {loading && (
-        <div className="mt-4 flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
+        <div className="mt-4 flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700" role="status" aria-live="polite">
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600" />
           Generating AI analysis...
         </div>
@@ -114,62 +146,132 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
 
       {analysisOutput && (
         <motion.div
-          className="mt-5 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
+          className="mt-6 overflow-hidden rounded-3xl border-2 border-sky-200 bg-white p-4 shadow-md sm:p-5 lg:p-7"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.35 }}
         >
-          {/* Stats row */}
-          <div className="mb-4 grid grid-cols-3 gap-3">
-            <div className="rounded-xl bg-sky-50 p-3 text-center">
-              <p className="text-xs text-slate-500">Match Score</p>
-              <p className="text-xl font-bold text-sky-700">{analysisOutput.match_score ?? 0}%</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Main Feature Output</p>
+          <h4 className="mt-2 text-2xl font-bold text-slate-900 lg:text-3xl">Detailed Resume Analysis Result</h4>
+
+          <div className="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-sky-700">Match Score</p>
+              <p className="mt-1 text-3xl font-bold text-sky-800">{summaryStats.score}%</p>
             </div>
-            <div className="rounded-xl bg-emerald-50 p-3 text-center">
-              <p className="text-xs text-slate-500">Skills Found</p>
-              <p className="text-xl font-bold text-emerald-700">{analysisOutput.found_skills?.length ?? 0}</p>
+            <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-indigo-700">Required Skills</p>
+              <p className="mt-1 text-3xl font-bold text-indigo-800">{summaryStats.required}</p>
             </div>
-            <div className="rounded-xl bg-rose-50 p-3 text-center">
-              <p className="text-xs text-slate-500">Missing</p>
-              <p className="text-xl font-bold text-rose-700">{analysisOutput.missing_skills?.length ?? 0}</p>
+            <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-emerald-700">Skills Found</p>
+              <p className="mt-1 text-3xl font-bold text-emerald-800">{summaryStats.found}</p>
+            </div>
+            <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4">
+              <p className="text-xs uppercase tracking-[0.12em] text-rose-700">Need to Enhance</p>
+              <p className="mt-1 text-3xl font-bold text-rose-800">{summaryStats.missing}</p>
             </div>
           </div>
 
-          <h4 className="text-sm font-semibold uppercase tracking-[0.12em] text-slate-500">AI Response</h4>
-          <p className="mt-3 whitespace-pre-line text-sm leading-6 text-slate-700">{analysisOutput.analysis}</p>
-
-          {analysisOutput.highlighted_skills?.length ? (
-            <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-emerald-700">Skill Insights</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {analysisOutput.highlighted_skills.map((skill) => (
-                  <span key={skill} className="rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700">{skill}</span>
-                ))}
+          <div className="mt-5 grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(18rem,22rem)] xl:items-start">
+            <div className="min-w-0 space-y-5">
+              <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-600">Analysis Summary</p>
+                <p className="mt-2 whitespace-pre-line text-sm leading-7 text-slate-700 sm:text-base">
+                  {analysisOutput.summary || analysisOutput.analysis}
+                </p>
               </div>
-            </div>
-          ) : null}
 
-          {analysisOutput.missing_skills?.length ? (
-            <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-rose-700">Missing Skills</p>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {analysisOutput.missing_skills.map((skill) => (
-                  <span key={skill} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">{skill}</span>
-                ))}
+              {analysisOutput.required_skills?.length ? (
+                <div className="rounded-2xl border border-indigo-200 bg-indigo-50/60 p-4">
+                  <p className="text-sm font-semibold uppercase tracking-[0.1em] text-indigo-700">Required Skills for Role</p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {analysisOutput.required_skills.map((skill) => (
+                      <span
+                        key={`required-${skill}`}
+                        className="rounded-full border border-indigo-200 bg-white px-3 py-1.5 text-xs font-semibold text-indigo-700"
+                      >
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
+              <div className="grid gap-4 lg:grid-cols-2">
+                <div className="rounded-2xl border border-emerald-200 bg-emerald-50/60 p-4">
+                  <p className="text-sm font-semibold uppercase tracking-[0.1em] text-emerald-700">Skills Found in Resume</p>
+                  {!analysisOutput.found_skills?.length ? (
+                    <p className="mt-3 text-sm text-slate-600">No required skills detected yet.</p>
+                  ) : (
+                    <ul className="mt-3 space-y-2 text-sm text-slate-700">
+                      {analysisOutput.found_skills.map((skill, index) => (
+                        <li key={`found-${skill}`} className="rounded-lg border border-emerald-200 bg-white px-3 py-2">
+                          <span className="font-semibold text-emerald-700">{index + 1}.</span> {skill}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border border-rose-200 bg-rose-50/60 p-4">
+                  <p className="text-sm font-semibold uppercase tracking-[0.1em] text-rose-700">Skills to Enhance</p>
+                  {!analysisOutput.missing_skills?.length ? (
+                    <p className="mt-3 text-sm text-slate-600">Excellent. No critical skill gaps for this role.</p>
+                  ) : (
+                    <ul className="mt-3 space-y-2 text-sm text-slate-700">
+                      {analysisOutput.missing_skills.map((skill, index) => (
+                        <li key={`missing-${skill}`} className="rounded-lg border border-rose-200 bg-white px-3 py-2">
+                          <span className="font-semibold text-rose-700">{index + 1}.</span> {skill}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </div>
-            </div>
-          ) : null}
 
-          {analysisOutput.suggestions?.length ? (
-            <div className="mt-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.1em] text-blue-700">Suggestions</p>
-              <ul className="mt-2 list-disc space-y-1 pl-5 text-sm text-slate-700">
-                {analysisOutput.suggestions.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
+              {(analysisOutput.suggestions?.length || analysisOutput.highlighted_skills?.length) ? (
+                <div className="rounded-2xl border border-blue-200 bg-blue-50/70 p-4">
+                  <p className="text-sm font-semibold uppercase tracking-[0.1em] text-blue-700">Point-Wise Enhancement Plan</p>
+                  <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+                    {(analysisOutput.suggestions || []).map((item, index) => {
+                      const suggestionText = toSuggestionText(item);
+                      if (!suggestionText) return null;
+
+                      return (
+                        <li key={`suggestion-${index}`} className="rounded-lg border border-blue-200 bg-white px-3 py-2 break-words">
+                          <span className="font-semibold text-blue-700">{index + 1}.</span> {suggestionText}
+                        </li>
+                      );
+                    })}
+                    {(analysisOutput.highlighted_skills || []).map((skill, index) => (
+                      <li key={`highlight-${skill}`} className="rounded-lg border border-blue-200 bg-white px-3 py-2 break-words">
+                        <span className="font-semibold text-blue-700">{(analysisOutput.suggestions?.length || 0) + index + 1}.</span> Add one measurable project or achievement bullet for <span className="font-semibold">{skill}</span>.
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
             </div>
-          ) : null}
+
+            <aside className="xl:block" aria-label="Sticky analysis summary">
+              <div className="cv-card xl:sticky xl:top-24">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sky-700">Quick Summary</p>
+                <ul className="mt-3 space-y-2 text-sm text-slate-700">
+                  <li className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"><span>Match Score</span><strong>{summaryStats.score}%</strong></li>
+                  <li className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"><span>Required Skills</span><strong>{summaryStats.required}</strong></li>
+                  <li className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"><span>Skills Found</span><strong>{summaryStats.found}</strong></li>
+                  <li className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"><span>Need to Enhance</span><strong>{summaryStats.missing}</strong></li>
+                  <li className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"><span>Suggestions</span><strong>{summaryStats.suggestions}</strong></li>
+                </ul>
+                <p className="mt-3 text-xs leading-5 text-slate-500">Use this summary to track progress after each resume edit and rerun analysis.</p>
+              </div>
+            </aside>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-cyan-200 bg-cyan-50 px-3 py-2 text-xs text-cyan-800" role="status" aria-live="polite">
+            Tip: Re-analyze after updating project bullets to see how score and missing skills change.
+          </div>
         </motion.div>
       )}
     </motion.section>

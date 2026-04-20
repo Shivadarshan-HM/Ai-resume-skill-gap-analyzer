@@ -37,6 +37,121 @@
   }
 }
 
+@layer components {
+  .cv-panel {
+    border: 1px solid rgba(125, 211, 252, 0.45);
+    border-radius: 1.5rem;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(18px);
+    padding: 1.25rem;
+  }
+
+  .cv-card {
+    border: 1px solid rgba(186, 230, 253, 0.9);
+    border-radius: 1.25rem;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.06);
+    padding: 1rem;
+  }
+
+  .cv-input {
+    display: block;
+    width: 100%;
+    border: 1px solid rgba(191, 219, 254, 0.95);
+    border-radius: 0.9rem;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    color: #0f172a;
+    outline: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+  }
+
+  .cv-input:hover {
+    border-color: rgba(125, 211, 252, 1);
+  }
+
+  .cv-input:focus {
+    border-color: rgba(14, 165, 233, 0.9);
+    box-shadow: 0 0 0 4px rgba(14, 165, 233, 0.14);
+  }
+
+  .cv-input::placeholder {
+    color: #94a3b8;
+  }
+
+  .cv-input[type="file"] {
+    padding: 0.55rem 0.75rem 0.55rem 0.85rem;
+  }
+
+  .cv-input::file-selector-button {
+    margin-right: 0.85rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, #0284c7, #06b6d4);
+    padding: 0.55rem 0.85rem;
+    font: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+  }
+
+  .cv-input::file-selector-button:hover {
+    filter: brightness(1.05);
+  }
+
+  .cv-btn-primary,
+  .cv-btn-secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.9rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+    transition: transform 160ms ease, box-shadow 160ms ease, opacity 160ms ease, filter 160ms ease;
+  }
+
+  .cv-btn-primary {
+    border: 0;
+    background: linear-gradient(135deg, #0284c7, #06b6d4);
+    color: #ffffff;
+    box-shadow: 0 12px 28px rgba(6, 182, 212, 0.28);
+  }
+
+  .cv-btn-primary:hover:not(:disabled),
+  .cv-btn-secondary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    filter: brightness(1.02);
+  }
+
+  .cv-btn-primary:disabled,
+  .cv-btn-secondary:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+
+  .cv-btn-secondary {
+    border: 1px solid rgba(191, 219, 254, 0.95);
+    background: rgba(255, 255, 255, 0.95);
+    color: #0369a1;
+  }
+
+  .cv-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    border-radius: 9999px;
+    padding: 0.35rem 0.8rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+}
+
 @layer utilities {
   .glass-card {
     @apply border border-white/20 bg-white/10 backdrop-blur-xl;
