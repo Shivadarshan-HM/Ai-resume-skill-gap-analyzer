@@ -454,16 +454,18 @@ function Landing() {
 
         <footer className="mt-8 rounded-2xl border border-slate-200 bg-white/75 px-4 py-4 text-xs text-slate-500">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <p>AI Resume Skill Gap Analyzer • Analytical Precision Framework</p>
-            <a href="#top" className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 transition hover:border-sky-200 hover:text-sky-700">
-              Back to top
-            </a>
+            <p>CVisionary • Analytical Precision Framework</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <a href="mailto:cvisionary@gmail.com" className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-sky-700 transition hover:border-sky-200 hover:text-sky-800">
+                cvisionary@gmail.com
+              </a>
+              <a href="#top" className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700 transition hover:border-sky-200 hover:text-sky-700">
+                Back to top
+              </a>
+            </div>
           </div>
           <div className="mt-3 flex flex-wrap items-center gap-3 text-xs">
-            <span>Privacy Policy</span>
-            <span>Terms of Service</span>
-            <span>AI Ethics</span>
-            <span>Contact</span>
+            <span>For any issues, email the CVisionary support team.</span>
           </div>
         </footer>
       </section>
