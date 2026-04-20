@@ -21,49 +21,42 @@ def send_otp_email(email: str) -> bool:
     otp = generate_otp()
     expiry = datetime.utcnow() + timedelta(minutes=10)
 
-    # Purane OTP delete karo iss email ke liye
     OTPRecord.query.filter_by(email=email).delete()
 
-    # Naya OTP database mein save karo
     record = OTPRecord(email=email, otp=otp, expiry=expiry)
     db.session.add(record)
     db.session.commit()
 
-    sender = (
-        current_app.config.get("MAIL_DEFAULT_SENDER")
-        or current_app.config.get("MAIL_USERNAME")
-        or "no-reply@localhost"
-    )
     mail_username = current_app.config.get("MAIL_USERNAME")
     mail_password = current_app.config.get("MAIL_PASSWORD")
 
-    # In debug mode, allow console OTP fallback if SMTP credentials are missing.
+    # Sender name — professional dikhega
+    sender = ("CVisionay - AI Career Studio", mail_username or "no-reply@localhost")
+
     if not mail_username or not mail_password:
         if current_app.debug:
             print(f"[DEV OTP] {email}: {otp}")
             return True
-
-        # Production-like mode: fail fast instead of pretending OTP was emailed.
         OTPRecord.query.filter_by(email=email).delete()
         db.session.commit()
         return False
 
     try:
         msg = Message(
-            subject="Your OTP - AI Resume Analyzer",
+            subject="Your OTP - CVisionay AI Career Studio",
             sender=sender,
             recipients=[email],
             body=f"""Hello!
 
-Your OTP for CVisionary is:
+Your OTP for CVisionay is:
 
-{otp}
+  {otp}
 
 This OTP is valid for 10 minutes.
 
 If you did not request this, please ignore this email.
 
-— AI Resume Team"""
+— CVisionay AI Career Studio Team"""
         )
         mail.send(msg)
         return True
@@ -95,7 +88,6 @@ def verify_otp(email: str, otp: str) -> bool:
     if record.otp != otp:
         return False
 
-    # Verify hone ke baad delete karo
     OTPRecord.query.filter_by(email=email).delete()
     db.session.commit()
     return True
