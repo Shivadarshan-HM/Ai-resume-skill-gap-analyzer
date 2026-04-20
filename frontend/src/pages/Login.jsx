@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
 const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
 
 const TRUST_POINTS = [

@@ -17,7 +17,7 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    CORS(app)
+    CORS(app, resources={r"/*": {"origins": "*"}})
     JWTManager(app)
     db.init_app(app)
     mail.init_app(app)
