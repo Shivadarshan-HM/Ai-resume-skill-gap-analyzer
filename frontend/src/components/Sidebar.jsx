@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { NavLink } from "react-router-dom";
 
 const MENU_ITEMS = [
@@ -87,7 +88,69 @@ const MENU_ITEMS = [
   }
 ];
 
-function Sidebar({ isOpen, onClose }) {
+const GOALS_KEY = "cv_weekly_goals";
+
+function loadGoals() {
+  try { return JSON.parse(localStorage.getItem(GOALS_KEY) || "[]"); }
+  catch { return []; }
+}
+function saveGoals(goals) {
+  localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
+}
+
+function Sidebar({ isOpen, onClose, analysisData }) {
+  const [goals, setGoals] = useState(loadGoals);
+  const [inputVal, setInputVal] = useState("");
+  const [showInput, setShowInput] = useState(false);
+
+  // Auto-add missing skills as goals when analysis happens
+  useEffect(() => {
+    if (!analysisData?.missing_skills?.length) return;
+
+    const existing = loadGoals();
+    const existingLabels = existing.map(g => g.label.toLowerCase());
+
+    const newGoals = analysisData.missing_skills.slice(0, 4).map(skill => ({
+      id: `skill-${skill}`,
+      label: `Learn: ${skill}`,
+      done: false,
+      auto: true,
+    })).filter(g => !existingLabels.includes(g.label.toLowerCase()));
+
+    if (newGoals.length > 0) {
+      const merged = [...newGoals, ...existing].slice(0, 10);
+      setGoals(merged);
+      saveGoals(merged);
+    }
+  }, [analysisData]);
+
+  function toggleGoal(id) {
+    const updated = goals.map(g => g.id === id ? { ...g, done: !g.done } : g);
+    setGoals(updated);
+    saveGoals(updated);
+  }
+
+  function addGoal() {
+    const label = inputVal.trim();
+    if (!label) return;
+    const newGoal = { id: `custom-${Date.now()}`, label, done: false, auto: false };
+    const updated = [newGoal, ...goals].slice(0, 10);
+    setGoals(updated);
+    saveGoals(updated);
+    setInputVal("");
+    setShowInput(false);
+  }
+
+  function deleteGoal(id) {
+    const updated = goals.filter(g => g.id !== id);
+    setGoals(updated);
+    saveGoals(updated);
+  }
+
+  const doneCount = goals.filter(g => g.done).length;
+  const total = goals.length;
+  const progress = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+
   return (
     <>
       <div
@@ -99,45 +162,137 @@ function Sidebar({ isOpen, onClose }) {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-80 border-r border-slate-200/70 bg-[linear-gradient(170deg,#fcfeff_0%,#f2f8fd_100%)] p-6 shadow-xl backdrop-blur-sm transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-80 flex-col border-r border-slate-200/70 bg-[linear-gradient(170deg,#fcfeff_0%,#f2f8fd_100%)] p-6 shadow-xl backdrop-blur-sm transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-      <div className="mb-8 flex items-center gap-3">
-        <img src="/cvisionary-logo.svg" alt="CVisionary" className="h-11 w-11 rounded-2xl object-cover shadow-md" />
-        <div>
-          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Career Studio</p>
-          <h2 className="text-lg font-semibold text-slate-900">CVisionary</h2>
+        {/* Logo */}
+        <div className="mb-8 flex items-center gap-3">
+          <img src="/cvisionary-logo.svg" alt="CVisionary" className="h-11 w-11 rounded-2xl object-cover shadow-md" />
+          <div>
+            <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Career Studio</p>
+            <h2 className="text-lg font-semibold text-slate-900">CVisionary</h2>
+          </div>
         </div>
-      </div>
 
-      <nav className="space-y-2">
-        {MENU_ITEMS.map((item) => (
-          <NavLink key={item.to} to={item.to} end={item.end} onClick={onClose}>
-            {({ isActive }) => (
+        {/* Nav */}
+        <nav className="space-y-1 overflow-y-auto">
+          {MENU_ITEMS.map((item) => (
+            <NavLink key={item.to} to={item.to} end={item.end} onClick={onClose}>
+              {({ isActive }) => (
+                <motion.div
+                  className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
+                    isActive
+                      ? "border-cyan-200 bg-gradient-to-r from-sky-50 to-cyan-50 text-sky-700 shadow-sm"
+                      : "border-transparent text-slate-600 hover:border-cyan-100 hover:bg-cyan-50/70 hover:text-sky-700"
+                  }`}
+                  whileHover={{ x: 2 }}
+                >
+                  <span className={`${isActive ? "text-sky-600" : "text-slate-500"}`}>{item.icon}</span>
+                  <span>{item.label}</span>
+                </motion.div>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        {/* Weekly Target Card */}
+        <div className="mt-6 rounded-2xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50 p-4 shadow-sm">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sky-600">Weekly Target</p>
+            <button
+              onClick={() => setShowInput(v => !v)}
+              className="grid h-6 w-6 place-items-center rounded-lg bg-sky-100 text-sky-600 hover:bg-sky-200 transition text-sm font-bold"
+              title="Add goal"
+            >
+              {showInput ? "−" : "+"}
+            </button>
+          </div>
+
+          {/* Add input */}
+          <AnimatePresence>
+            {showInput && (
               <motion.div
-                className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
-                  isActive
-                    ? "border-cyan-200 bg-gradient-to-r from-sky-50 to-cyan-50 text-sky-700 shadow-sm"
-                    : "border-transparent text-slate-600 hover:border-cyan-100 hover:bg-cyan-50/70 hover:text-sky-700"
-                }`}
-                whileHover={{ x: 2 }}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mt-2 overflow-hidden"
               >
-                <span className={`${isActive ? "text-sky-600" : "text-slate-500"}`}>{item.icon}</span>
-                <span>{item.label}</span>
+                <div className="flex gap-1.5">
+                  <input
+                    type="text"
+                    value={inputVal}
+                    onChange={e => setInputVal(e.target.value)}
+                    onKeyDown={e => e.key === "Enter" && addGoal()}
+                    placeholder="Add a goal..."
+                    className="h-8 flex-1 rounded-lg border border-cyan-200 bg-white px-2.5 text-xs text-slate-700 outline-none focus:ring-1 focus:ring-sky-400"
+                    autoFocus
+                  />
+                  <button
+                    onClick={addGoal}
+                    className="h-8 rounded-lg bg-sky-500 px-2.5 text-xs font-semibold text-white hover:bg-sky-600 transition"
+                  >
+                    Add
+                  </button>
+                </div>
               </motion.div>
             )}
-          </NavLink>
-        ))}
-      </nav>
+          </AnimatePresence>
 
-      <div className="mt-8 rounded-2xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50 p-4 shadow-sm">
-        <p className="text-xs uppercase tracking-[0.12em] text-sky-600">Weekly Target</p>
-        <p className="mt-2 text-sm text-slate-700">Add two measurable achievement bullets and one role-specific project this week.</p>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-cyan-100">
-          <div className="h-full w-2/5 rounded-full bg-gradient-to-r from-sky-500 to-cyan-500" />
+          {/* Goals list */}
+          {total === 0 ? (
+            <p className="mt-2 text-xs text-slate-500">Analyze your resume to get auto goals, or add one with +</p>
+          ) : (
+            <ul className="mt-2 space-y-1.5">
+              {goals.map(goal => (
+                <li key={goal.id} className="group flex items-start gap-2">
+                  <button
+                    onClick={() => toggleGoal(goal.id)}
+                    className={`mt-0.5 h-4 w-4 shrink-0 rounded border transition ${
+                      goal.done
+                        ? "border-emerald-400 bg-emerald-400 text-white"
+                        : "border-slate-300 bg-white hover:border-sky-400"
+                    }`}
+                  >
+                    {goal.done && (
+                      <svg viewBox="0 0 12 12" className="h-full w-full" fill="none">
+                        <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    )}
+                  </button>
+                  <span className={`flex-1 text-xs leading-5 ${goal.done ? "line-through text-slate-400" : "text-slate-700"}`}>
+                    {goal.auto && <span className="mr-1 rounded-full bg-sky-100 px-1 py-0.5 text-[10px] text-sky-600">AI</span>}
+                    {goal.label}
+                  </span>
+                  <button
+                    onClick={() => deleteGoal(goal.id)}
+                    className="hidden text-slate-300 hover:text-rose-400 group-hover:block text-xs leading-none"
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* Progress bar */}
+          {total > 0 && (
+            <div className="mt-3">
+              <div className="flex justify-between text-[10px] text-slate-400 mb-1">
+                <span>{doneCount}/{total} done</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-cyan-100">
+                <motion.div
+                  className="h-full rounded-full bg-gradient-to-r from-sky-500 to-cyan-500"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.4 }}
+                />
+              </div>
+            </div>
+          )}
         </div>
-      </div>
       </aside>
     </>
   );

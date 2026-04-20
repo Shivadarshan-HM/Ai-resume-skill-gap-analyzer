@@ -11,7 +11,7 @@ import SkillRoadmap from "./SkillRoadmap";
 import StatsCard from "./StatsCard";
 
 const ROLE_OPTIONS = ["Frontend Developer", "Backend Developer", "Data Scientist", "Full Stack Developer"];
-const API_URL = "http://127.0.0.1:5000";
+const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:8000";
 
 const ROUTE_LABELS = {
   "/dashboard": "Overview",
@@ -25,68 +25,32 @@ const ROUTE_LABELS = {
   "/dashboard/settings": "Settings"
 };
 
-const LEARNING_RESOURCES = [
-  {
-    title: "Frontend Developer Roadmap",
-    detail: "Step-by-step guide for frontend skills, tools, and project progression.",
-    tag: "Frontend",
-    topics: ["frontend", "html", "css", "javascript", "react"],
-    url: "https://roadmap.sh/frontend"
-  },
-  {
-    title: "React Official Learn",
-    detail: "Hands-on official React learning path with modern patterns.",
-    tag: "React",
-    topics: ["react", "hooks", "jsx", "frontend"],
-    url: "https://react.dev/learn"
-  },
-  {
-    title: "MDN JavaScript Guide",
-    detail: "Comprehensive JavaScript reference and practical tutorials.",
-    tag: "JavaScript",
-    topics: ["javascript", "web", "frontend", "programming"],
-    url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide"
-  },
-  {
-    title: "Python Official Tutorial",
-    detail: "Beginner-to-intermediate Python fundamentals from official docs.",
-    tag: "Python",
-    topics: ["python", "backend", "basics", "programming"],
-    url: "https://docs.python.org/3/tutorial/"
-  },
-  {
-    title: "Flask Mega-Tutorial",
-    detail: "Practical Flask web app development from basics to advanced.",
-    tag: "Backend",
-    topics: ["flask", "backend", "api", "python"],
-    url: "https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-i-hello-world"
-  },
-  {
-    title: "System Design Primer",
-    detail: "High-level system design concepts and interview preparation notes.",
-    tag: "System Design",
-    topics: ["system design", "architecture", "interview", "scalability"],
-    url: "https://github.com/donnemartin/system-design-primer"
-  },
-  {
-    title: "NeetCode Roadmap",
-    detail: "Curated DSA problem list with structured interview preparation order.",
-    tag: "DSA",
-    topics: ["dsa", "algorithms", "data structures", "coding interview"],
-    url: "https://neetcode.io/roadmap"
-  },
-  {
-    title: "AWS Training and Certification",
-    detail: "Cloud learning paths for AWS basics, architecture, and services.",
-    tag: "Cloud",
-    topics: ["aws", "cloud", "devops", "architecture"],
-    url: "https://www.aws.training/"
+// ─── Activity helpers ───────────────────────────────────────────
+const ACTIVITY_KEY = "cv_activity_log";
+
+function loadActivity() {
+  try {
+    return JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "[]");
+  } catch {
+    return [];
   }
-];
+}
+
+function saveActivity(log) {
+  localStorage.setItem(ACTIVITY_KEY, JSON.stringify(log.slice(0, 20))); // keep last 20
+}
+
+export function logActivity(message) {
+  const log = loadActivity();
+  log.unshift({ message, time: new Date().toISOString() });
+  saveActivity(log);
+}
+
+// ────────────────────────────────────────────────────────────────
 
 function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData, analysisLoading, setAnalysisLoading }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [resourceQuery, setResourceQuery] = useState("");
+  const [activityLog, setActivityLog] = useState([]);
   const [profileForm, setProfileForm] = useState({
     full_name: "",
     bio: "",
@@ -97,8 +61,10 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
     portfolio_url: "",
   });
   const [profileSaving, setProfileSaving] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [profileError, setProfileError] = useState("");
   const [profileSuccess, setProfileSuccess] = useState("");
+  const [savedProfile, setSavedProfile] = useState(null); // ✅ FIX 3: show saved data after save
   const location = useLocation();
 
   const initials = user?.full_name ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "U";
@@ -111,6 +77,21 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   const activePath = location.pathname === "/dashboard/" ? "/dashboard" : location.pathname;
   const activeSection = ROUTE_LABELS[activePath] || "Overview";
 
+  // ✅ FIX 2: Load activity when Activity tab opens
+  useEffect(() => {
+    if (activePath === "/dashboard/activity") {
+      setActivityLog(loadActivity());
+    }
+  }, [activePath]);
+
+  // ✅ FIX 2: Log when resume is analyzed
+  useEffect(() => {
+    const roleLabel = analysisData?.target_role || analysisData?.role;
+    if (roleLabel) {
+      logActivity(`Resume analyzed for "${roleLabel}" — Match: ${analysisData.match_score ?? 0}%`);
+    }
+  }, [analysisData]);
+
   useEffect(() => {
     setProfileForm({
       full_name: user?.full_name || "",
@@ -121,6 +102,18 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
       github_url: user?.github_url || "",
       portfolio_url: user?.portfolio_url || "",
     });
+    // ✅ FIX 3: Initialize savedProfile from user data
+    if (user) {
+      setSavedProfile({
+        full_name: user.full_name || "",
+        bio: user.bio || "",
+        phone: user.phone || "",
+        location: user.location || "",
+        linkedin_url: user.linkedin_url || "",
+        github_url: user.github_url || "",
+        portfolio_url: user.portfolio_url || "",
+      });
+    }
   }, [user]);
 
   function handleProfileFieldChange(event) {
@@ -159,7 +152,11 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
       if (data.user && onUserUpdate) {
         onUserUpdate(data.user);
       }
-      setProfileSuccess("Profile saved successfully.");
+      // ✅ FIX 3: Update savedProfile so UI shows updated data
+      setSavedProfile({ ...profileForm });
+      setProfileSuccess("Profile saved successfully! ✅");
+      setEditMode(false);
+      logActivity("Profile bio data updated");
     } catch {
       setProfileError("Unable to connect to server.");
     } finally {
@@ -239,218 +236,135 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
     );
   }
 
-  function renderResources() {
-    const query = resourceQuery.trim().toLowerCase();
-    const filteredResources = LEARNING_RESOURCES.filter((item) => {
-      if (!query) return true;
-      return item.title.toLowerCase().includes(query) || item.tag.toLowerCase().includes(query) || item.detail.toLowerCase().includes(query) || item.topics.some((topic) => topic.includes(query));
-    });
+  // ✅ FIX 2: Real activity from localStorage
+  function renderActivity() {
+    const log = activityLog;
 
     return (
       <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <h3 className="text-xl font-semibold text-slate-900">Learning Resources</h3>
-        <p className="mt-1 text-sm text-slate-500">Type a skill or topic (for example: react, python, aws, system design) and open useful external learning blogs or websites.</p>
-        <label htmlFor="resource-search" className="mt-4 block text-xs font-medium uppercase tracking-[0.14em] text-slate-500">Search by skill or topic</label>
-        <input
-          id="resource-search"
-          type="text"
-          value={resourceQuery}
-          onChange={(e) => setResourceQuery(e.target.value)}
-          placeholder="Type skill or topic..."
-          className="mt-2 h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
-        />
-
-        <p className="mt-3 text-xs text-slate-500">{filteredResources.length} resource{filteredResources.length === 1 ? "" : "s"} found</p>
-
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          {filteredResources.map((item) => (
-            <a
-              key={item.title}
-              href={item.url}
-              target="_blank"
-              rel="noreferrer"
-              className="group rounded-2xl border border-slate-200 bg-slate-50/80 p-4 transition hover:-translate-y-0.5 hover:border-sky-200 hover:bg-white"
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-xl font-semibold text-slate-900">Recent Activity</h3>
+            <p className="mt-1 text-sm text-slate-500">Everything you've done on CVisionary — auto tracked.</p>
+          </div>
+          {log.length > 0 && (
+            <button
+              onClick={() => {
+                localStorage.removeItem(ACTIVITY_KEY);
+                setActivityLog([]);
+              }}
+              className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-100"
             >
-              <p className="text-xs uppercase tracking-[0.14em] text-sky-700">{item.tag}</p>
-              <h4 className="mt-1 text-base font-semibold text-slate-900">{item.title}</h4>
-              <p className="mt-2 text-sm text-slate-600">{item.detail}</p>
-              <p className="mt-3 text-sm font-medium text-sky-700 group-hover:text-sky-800">Open resource</p>
-            </a>
-          ))}
-          {filteredResources.length === 0 && (
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 sm:col-span-2">
-              No resources found for this topic yet. Try another keyword like react, flask, dsa, or aws.
+              Clear All
+            </button>
+          )}
+        </div>
+
+        <div className="mt-5 space-y-3">
+          {log.length === 0 ? (
+            <div className="rounded-2xl border border-amber-100 bg-amber-50 p-5 text-center text-sm text-amber-700">
+              No activity yet — analyze your resume, check ATS, or update your profile to see activity here!
             </div>
+          ) : (
+            log.map((item, index) => (
+              <div key={index} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+                <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700">{index + 1}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-slate-700">{item.message}</p>
+                  <p className="mt-0.5 text-xs text-slate-400">{new Date(item.time).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p>
+                </div>
+              </div>
+            ))
           )}
         </div>
       </motion.section>
     );
   }
 
-  function renderActivity() {
-    const timeline = ["Uploaded resume and selected target role", "Generated ATS score and improvement suggestions", "Compared resume with job description keywords", "Created roadmap for next 4 learning priorities"];
-
-    return (
-      <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <h3 className="text-xl font-semibold text-slate-900">Recent Activity</h3>
-        <p className="mt-1 text-sm text-slate-500">Track progress and keep your resume updates consistent.</p>
-        <div className="mt-5 space-y-3">
-          {timeline.map((item, index) => (
-            <div key={item} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4">
-              <span className="mt-0.5 grid h-6 w-6 place-items-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700">{index + 1}</span>
-              <p className="text-sm text-slate-700">{item}</p>
-            </div>
-          ))}
-        </div>
-      </motion.section>
-    );
-  }
-
+  // ✅ FIX 3: Settings — saved card + Edit Profile toggle
   function renderSettings() {
+    const hasProfile = savedProfile && (savedProfile.full_name || savedProfile.phone || savedProfile.bio);
     return (
-      <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <h3 className="text-xl font-semibold text-slate-900">Settings - Bio Data</h3>
-        <p className="mt-1 text-sm text-slate-500">Add your personal information so your profile is complete and easier to manage.</p>
+      <motion.section className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
 
-        <form className="mt-5 space-y-4" onSubmit={handleProfileSave}>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <label className="block">
-              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Full Name</span>
-              <input
-                type="text"
-                name="full_name"
-                value={profileForm.full_name}
-                onChange={handleProfileFieldChange}
-                placeholder="Your full name"
-                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Phone</span>
-              <input
-                type="text"
-                name="phone"
-                value={profileForm.phone}
-                onChange={handleProfileFieldChange}
-                placeholder="+91 98765 43210"
-                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Location</span>
-              <input
-                type="text"
-                name="location"
-                value={profileForm.location}
-                onChange={handleProfileFieldChange}
-                placeholder="City, Country"
-                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">LinkedIn URL</span>
-              <input
-                type="url"
-                name="linkedin_url"
-                value={profileForm.linkedin_url}
-                onChange={handleProfileFieldChange}
-                placeholder="https://linkedin.com/in/username"
-                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">GitHub URL</span>
-              <input
-                type="url"
-                name="github_url"
-                value={profileForm.github_url}
-                onChange={handleProfileFieldChange}
-                placeholder="https://github.com/username"
-                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
-              />
-            </label>
-
-            <label className="block">
-              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Portfolio URL</span>
-              <input
-                type="url"
-                name="portfolio_url"
-                value={profileForm.portfolio_url}
-                onChange={handleProfileFieldChange}
-                placeholder="https://your-portfolio.com"
-                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
-              />
-            </label>
+        {/* Saved Profile Card — visible when profile exists and not editing */}
+        {hasProfile && !editMode && (
+          <div className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white to-emerald-50 p-6 shadow-md">
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600">Your Saved Profile</p>
+              <button onClick={() => setEditMode(true)} className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100 transition">✏️ Edit Profile</button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {savedProfile.full_name && <div className="rounded-xl border border-slate-100 bg-white p-3"><p className="text-xs text-slate-400">Full Name</p><p className="mt-0.5 text-sm font-medium text-slate-800">{savedProfile.full_name}</p></div>}
+              {savedProfile.phone && <div className="rounded-xl border border-slate-100 bg-white p-3"><p className="text-xs text-slate-400">Phone</p><p className="mt-0.5 text-sm font-medium text-slate-800">{savedProfile.phone}</p></div>}
+              {savedProfile.location && <div className="rounded-xl border border-slate-100 bg-white p-3"><p className="text-xs text-slate-400">Location</p><p className="mt-0.5 text-sm font-medium text-slate-800">{savedProfile.location}</p></div>}
+              {savedProfile.linkedin_url && <div className="rounded-xl border border-slate-100 bg-white p-3"><p className="text-xs text-slate-400">LinkedIn</p><a href={savedProfile.linkedin_url} target="_blank" rel="noreferrer" className="mt-0.5 block truncate text-sm font-medium text-sky-600 hover:underline">{savedProfile.linkedin_url}</a></div>}
+              {savedProfile.github_url && <div className="rounded-xl border border-slate-100 bg-white p-3"><p className="text-xs text-slate-400">GitHub</p><a href={savedProfile.github_url} target="_blank" rel="noreferrer" className="mt-0.5 block truncate text-sm font-medium text-sky-600 hover:underline">{savedProfile.github_url}</a></div>}
+              {savedProfile.portfolio_url && <div className="rounded-xl border border-slate-100 bg-white p-3"><p className="text-xs text-slate-400">Portfolio</p><a href={savedProfile.portfolio_url} target="_blank" rel="noreferrer" className="mt-0.5 block truncate text-sm font-medium text-sky-600 hover:underline">{savedProfile.portfolio_url}</a></div>}
+              {savedProfile.bio && <div className="rounded-xl border border-slate-100 bg-white p-3 sm:col-span-2"><p className="text-xs text-slate-400">Bio / Summary</p><p className="mt-0.5 text-sm text-slate-700 leading-relaxed">{savedProfile.bio}</p></div>}
+            </div>
           </div>
+        )}
 
-          <label className="block">
-            <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Bio / Summary</span>
-            <textarea
-              name="bio"
-              value={profileForm.bio}
-              onChange={handleProfileFieldChange}
-              rows={4}
-              placeholder="Write a short professional summary..."
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
-            />
-          </label>
+        {/* Edit Form — show if no profile yet OR editMode true */}
+        {(!hasProfile || editMode) && (
+          <div className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900">Settings — Edit Profile</h3>
+                <p className="mt-1 text-sm text-slate-500">Update your personal information and save.</p>
+              </div>
+              {editMode && <button onClick={() => setEditMode(false)} className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50 transition">✕ Cancel</button>}
+            </div>
 
-          {profileError && <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{profileError}</p>}
-          {profileSuccess && <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{profileSuccess}</p>}
-
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-100 bg-sky-50/70 p-4">
-            <p className="text-xs text-slate-600">Email: <span className="font-medium text-slate-800">{user?.email || "-"}</span></p>
-            <button
-              type="submit"
-              disabled={profileSaving}
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 px-5 text-sm font-semibold text-white shadow-md shadow-cyan-200 disabled:opacity-70"
-            >
-              {profileSaving ? "Saving..." : "Save Bio Data"}
-            </button>
+            <form className="mt-5 space-y-4" onSubmit={handleProfileSave}>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <label className="block"><span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Full Name</span><input type="text" name="full_name" value={profileForm.full_name} onChange={handleProfileFieldChange} placeholder="Your full name" className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
+                <label className="block"><span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Phone</span><input type="text" name="phone" value={profileForm.phone} onChange={handleProfileFieldChange} placeholder="+91 98765 43210" className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
+                <label className="block"><span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Location</span><input type="text" name="location" value={profileForm.location} onChange={handleProfileFieldChange} placeholder="City, Country" className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
+                <label className="block"><span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">LinkedIn URL</span><input type="url" name="linkedin_url" value={profileForm.linkedin_url} onChange={handleProfileFieldChange} placeholder="https://linkedin.com/in/username" className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
+                <label className="block"><span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">GitHub URL</span><input type="url" name="github_url" value={profileForm.github_url} onChange={handleProfileFieldChange} placeholder="https://github.com/username" className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
+                <label className="block"><span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Portfolio URL</span><input type="url" name="portfolio_url" value={profileForm.portfolio_url} onChange={handleProfileFieldChange} placeholder="https://your-portfolio.com" className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
+              </div>
+              <label className="block"><span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Bio / Summary</span><textarea name="bio" value={profileForm.bio} onChange={handleProfileFieldChange} rows={4} placeholder="Write a short professional summary..." className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
+              {profileError && <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{profileError}</p>}
+              {profileSuccess && <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{profileSuccess}</p>}
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-100 bg-sky-50/70 p-4">
+                <p className="text-xs text-slate-600">Email: <span className="font-medium text-slate-800">{user?.email || "-"}</span></p>
+                <button type="submit" disabled={profileSaving} className="inline-flex h-11 items-center justify-center rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 px-5 text-sm font-semibold text-white shadow-md shadow-cyan-200 disabled:opacity-70">{profileSaving ? "Saving..." : "Save Profile"}</button>
+              </div>
+            </form>
           </div>
-        </form>
+        )}
       </motion.section>
     );
   }
-
   function renderContent() {
     if (activePath === "/dashboard/analyze") {
-      return <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={setAnalysisData} onLoadingChange={setAnalysisLoading} analysisData={analysisData} />;
+      return <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={(data) => setAnalysisData({ ...data, target_role: data.role })} onLoadingChange={setAnalysisLoading} analysisData={analysisData} />;
     }
-
     if (activePath === "/dashboard/chat") {
       return <ChatAssistant quickPrompts={quickPrompts} />;
     }
-
     if (activePath === "/dashboard/ats") {
       return <ATSCard analysisData={analysisData} loading={analysisLoading} />;
     }
-
     if (activePath === "/dashboard/job-match") {
       return <JobMatch analysisData={analysisData} />;
     }
-
     if (activePath === "/dashboard/roadmap") {
       return <SkillRoadmap analysisData={analysisData} />;
     }
-
     if (activePath === "/dashboard/resources") {
-      // ✅ FIX: pass analysisData so Resources auto-selects the target role
+      // ✅ FIX 1: analysisData pass hota hai — Resources auto-select karega target role as Primary
       return <Resources analysisData={analysisData} />;
     }
-
     if (activePath === "/dashboard/activity") {
       return renderActivity();
     }
-
     if (activePath === "/dashboard/settings") {
       return renderSettings();
     }
-
     return renderHome();
   }
 
@@ -460,7 +374,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
         <div className="h-full bg-gradient-to-r from-sky-500 to-cyan-500 transition-[width] duration-300" style={{ width: `${Math.min(100, Math.max(6, score))}%` }} />
       </div>
       <div className="pointer-events-none absolute -top-24 right-8 h-64 w-64 rounded-full bg-cyan-200/45 blur-3xl" />
-      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} analysisData={analysisData} />
 
       <div className="lg:pl-80">
         <main className="mx-auto max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
