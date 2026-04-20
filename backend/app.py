@@ -9,6 +9,7 @@ from config import Config
 from database import db
 from services.email_service import mail
 from routes.analyze import analyze_bp
+from routes.auth import auth_bp
 from routes.chat import chat_bp
 
 
@@ -16,11 +17,12 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    CORS(app, resources={r"/*": {"origins": "*"}})
+    CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True, allow_headers=["Content-Type", "Authorization"], methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
     JWTManager(app)
     db.init_app(app)
     mail.init_app(app)
 
+    app.register_blueprint(auth_bp)
     app.register_blueprint(analyze_bp)
     app.register_blueprint(chat_bp)
 
