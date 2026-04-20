@@ -104,7 +104,10 @@ function Login({ onLoginSuccess }) {
       <motion.section className="mx-auto grid min-h-[calc(100vh-3rem)] w-full max-w-7xl overflow-hidden rounded-[2rem] border border-white/80 bg-white/75 shadow-xl backdrop-blur-sm lg:grid-cols-[1.05fr_1fr]" initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
         <div className="relative flex flex-col bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] p-7 sm:p-10 lg:p-12">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <button type="button" className="w-fit rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm">AI Career Studio</button>
+              <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm">
+                <img src="/cvisionary-logo.svg" alt="CVisionary" className="h-8 w-8 rounded-full object-cover" />
+                <span className="text-sm font-semibold text-slate-700">CVisionary</span>
+              </div>
             <Link
               to="/"
               className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-sky-200 hover:text-sky-700"

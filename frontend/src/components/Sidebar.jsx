@@ -104,14 +104,10 @@ function Sidebar({ isOpen, onClose }) {
         }`}
       >
       <div className="mb-8 flex items-center gap-3">
-        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-sky-600 to-cyan-500 text-white shadow-md shadow-cyan-200">
-          <svg viewBox="0 0 24 24" fill="none" className="h-6 w-6" aria-hidden="true">
-            <path d="M4 12h16M8 8l-4 4 4 4m8-8 4 4-4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </div>
+        <img src="/cvisionary-logo.svg" alt="CVisionary" className="h-11 w-11 rounded-2xl object-cover shadow-md" />
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Career Studio</p>
-          <h2 className="text-lg font-semibold text-slate-900">Smart Dashboard</h2>
+          <h2 className="text-lg font-semibold text-slate-900">CVisionary</h2>
         </div>
       </div>
 

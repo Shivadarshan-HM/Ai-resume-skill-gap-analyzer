@@ -1,4 +1,4 @@
-# AI Resume Skill Gap Analyzer
+# CVisionary
 
 A full-stack app for comparing a resume against a selected role and highlighting match score, found skills, and missing skills.
 

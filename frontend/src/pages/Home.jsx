@@ -45,7 +45,11 @@ function Home() {
     <main className="page">
       <section className="hero">
         <p className="tag">Hackathon-Ready Project</p>
-        <h1>AI Resume Skill Gap Analyzer</h1>
+        <div className="mx-auto flex w-fit items-center gap-3 rounded-full border border-slate-200 bg-white/90 px-4 py-2 shadow-sm">
+          <img src="/cvisionary-logo.svg" alt="CVisionary logo" className="h-10 w-10 rounded-full object-cover" />
+          <span className="text-sm font-semibold tracking-[0.16em] text-slate-700">CVisionary</span>
+        </div>
+        <h1>CVisionary</h1>
         <p>
           Compare resume content against role-based skill requirements and instantly
           discover your strongest matches and improvement areas.

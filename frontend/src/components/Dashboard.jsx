@@ -211,7 +211,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">Website Information</p>
           <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-900">How this platform helps your career growth</h3>
           <p className="mt-3 text-sm leading-7 text-slate-600">
-            AI Resume Skill Gap Analyzer helps you improve resume quality and role-fit with a structured workflow.
+            CVisionary helps you improve resume quality and role-fit with a structured workflow.
             Use the sidebar sections to analyze your resume, check ATS readiness, compare job match, and follow
             a domain roadmap based on your target role.
           </p>

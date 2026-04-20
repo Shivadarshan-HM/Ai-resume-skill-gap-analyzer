@@ -184,10 +184,10 @@ function Landing() {
         <header className="sticky top-4 z-20 rounded-2xl border border-white/80 bg-white/85 p-3 shadow-lg backdrop-blur-md">
           <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <span className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-sky-600 to-cyan-500 text-sm font-semibold text-white shadow-md">AI</span>
+            <img src="/cvisionary-logo.svg" alt="CVisionary" className="h-11 w-11 rounded-2xl object-cover shadow-md" />
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-slate-500">AI Career Studio</p>
-              <h1 className="text-lg font-semibold text-slate-900">Resume Skill Gap Analyzer</h1>
+              <h1 className="text-lg font-semibold text-slate-900">CVisionary</h1>
             </div>
           </div>
 

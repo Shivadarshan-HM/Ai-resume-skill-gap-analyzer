@@ -55,7 +55,7 @@ def send_otp_email(email: str) -> bool:
             recipients=[email],
             body=f"""Hello!
 
-Your OTP for AI Resume Skill Gap Analyzer is:
+Your OTP for CVisionary is:
 
 {otp}
 

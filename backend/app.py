@@ -31,7 +31,7 @@ def create_app() -> Flask:
 
     @app.get("/")
     def health_check():
-        return {"status": "ok", "service": "AI Resume Skill Gap Analyzer API"}
+        return {"status": "ok", "service": "CVisionary API"}
 
     return app
 
