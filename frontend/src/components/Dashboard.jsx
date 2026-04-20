@@ -285,9 +285,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   function renderSettings() {
     const hasProfile = savedProfile && (savedProfile.full_name || savedProfile.phone || savedProfile.bio);
     return (
-<<<<<<< HEAD
-      <motion.section className="space-y-6" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-=======
+
       <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -302,7 +300,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
             Logout
           </button>
         </div>
->>>>>>> 2957d9d5432fd19a0c0e8116f2b9db1509486fa2
+
 
         {/* Saved Profile Card — visible when profile exists and not editing */}
         {hasProfile && !editMode && (
