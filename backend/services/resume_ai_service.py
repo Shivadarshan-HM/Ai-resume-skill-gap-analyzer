@@ -92,9 +92,19 @@ def build_analysis(resume_text: str, prompt: str, role: str = "") -> dict:
                 "match_score": role_result.get("match_score", 0),
                 "found_skills": role_result.get("found_skills", []),
                 "missing_skills": role_result.get("missing_skills", []),
+                "required_skills": role_result.get("required_skills", []),
+                "summary": role_result.get("summary", ""),
             }
         )
     else:
-        response.update({"match_score": 0, "found_skills": [], "missing_skills": []})
+        response.update(
+            {
+                "match_score": 0,
+                "found_skills": [],
+                "missing_skills": [],
+                "required_skills": [],
+                "summary": "",
+            }
+        )
 
     return response

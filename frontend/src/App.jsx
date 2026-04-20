@@ -32,6 +32,11 @@ function App() {
     setAnalysisData(null);
   }
 
+  function handleUserUpdate(updatedUser) {
+    setUser(updatedUser);
+    localStorage.setItem("user", JSON.stringify(updatedUser));
+  }
+
   function handleLogout() {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
@@ -43,6 +48,7 @@ function App() {
 
   const dashboardProps = {
     user,
+    onUserUpdate: handleUserUpdate,
     onLogout: handleLogout,
     analysisData,
     setAnalysisData,

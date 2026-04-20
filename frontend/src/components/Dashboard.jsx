@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import ATSCard from "./ATSCard";
@@ -11,6 +11,7 @@ import SkillRoadmap from "./SkillRoadmap";
 import StatsCard from "./StatsCard";
 
 const ROLE_OPTIONS = ["Frontend Developer", "Backend Developer", "Data Scientist", "Full Stack Developer"];
+const API_URL = "http://127.0.0.1:5000";
 
 const ROUTE_LABELS = {
   "/dashboard": "Overview",
@@ -83,9 +84,21 @@ const LEARNING_RESOURCES = [
   }
 ];
 
-function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoading, setAnalysisLoading }) {
+function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData, analysisLoading, setAnalysisLoading }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [resourceQuery, setResourceQuery] = useState("");
+  const [profileForm, setProfileForm] = useState({
+    full_name: "",
+    bio: "",
+    phone: "",
+    location: "",
+    linkedin_url: "",
+    github_url: "",
+    portfolio_url: "",
+  });
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileError, setProfileError] = useState("");
+  const [profileSuccess, setProfileSuccess] = useState("");
   const location = useLocation();
 
   const initials = user?.full_name ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "U";
@@ -97,6 +110,62 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
 
   const activePath = location.pathname === "/dashboard/" ? "/dashboard" : location.pathname;
   const activeSection = ROUTE_LABELS[activePath] || "Overview";
+
+  useEffect(() => {
+    setProfileForm({
+      full_name: user?.full_name || "",
+      bio: user?.bio || "",
+      phone: user?.phone || "",
+      location: user?.location || "",
+      linkedin_url: user?.linkedin_url || "",
+      github_url: user?.github_url || "",
+      portfolio_url: user?.portfolio_url || "",
+    });
+  }, [user]);
+
+  function handleProfileFieldChange(event) {
+    const { name, value } = event.target;
+    setProfileForm((prev) => ({ ...prev, [name]: value }));
+  }
+
+  async function handleProfileSave(event) {
+    event.preventDefault();
+    setProfileError("");
+    setProfileSuccess("");
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      setProfileError("Session expired. Please login again.");
+      return;
+    }
+
+    setProfileSaving(true);
+    try {
+      const res = await fetch(`${API_URL}/auth/profile`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(profileForm),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setProfileError(data.error || "Failed to update profile.");
+        return;
+      }
+
+      if (data.user && onUserUpdate) {
+        onUserUpdate(data.user);
+      }
+      setProfileSuccess("Profile saved successfully.");
+    } catch {
+      setProfileError("Unable to connect to server.");
+    } finally {
+      setProfileSaving(false);
+    }
+  }
 
   function renderHome() {
     return (
@@ -240,18 +309,110 @@ function Dashboard({ user, onLogout, analysisData, setAnalysisData, analysisLoad
   function renderSettings() {
     return (
       <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <h3 className="text-xl font-semibold text-slate-900">Preferences</h3>
-        <p className="mt-1 text-sm text-slate-500">Tune your dashboard workflow and analysis focus.</p>
-        <div className="mt-5 grid gap-3 sm:grid-cols-2">
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
-            <p className="text-sm font-medium text-slate-900">Preferred Role</p>
-            <p className="mt-1 text-sm text-slate-600">Set your default role for faster analysis starts.</p>
+        <h3 className="text-xl font-semibold text-slate-900">Settings - Bio Data</h3>
+        <p className="mt-1 text-sm text-slate-500">Add your personal information so your profile is complete and easier to manage.</p>
+
+        <form className="mt-5 space-y-4" onSubmit={handleProfileSave}>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <label className="block">
+              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Full Name</span>
+              <input
+                type="text"
+                name="full_name"
+                value={profileForm.full_name}
+                onChange={handleProfileFieldChange}
+                placeholder="Your full name"
+                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Phone</span>
+              <input
+                type="text"
+                name="phone"
+                value={profileForm.phone}
+                onChange={handleProfileFieldChange}
+                placeholder="+91 98765 43210"
+                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Location</span>
+              <input
+                type="text"
+                name="location"
+                value={profileForm.location}
+                onChange={handleProfileFieldChange}
+                placeholder="City, Country"
+                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">LinkedIn URL</span>
+              <input
+                type="url"
+                name="linkedin_url"
+                value={profileForm.linkedin_url}
+                onChange={handleProfileFieldChange}
+                placeholder="https://linkedin.com/in/username"
+                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">GitHub URL</span>
+              <input
+                type="url"
+                name="github_url"
+                value={profileForm.github_url}
+                onChange={handleProfileFieldChange}
+                placeholder="https://github.com/username"
+                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
+              />
+            </label>
+
+            <label className="block">
+              <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Portfolio URL</span>
+              <input
+                type="url"
+                name="portfolio_url"
+                value={profileForm.portfolio_url}
+                onChange={handleProfileFieldChange}
+                placeholder="https://your-portfolio.com"
+                className="h-12 w-full rounded-xl border border-gray-200 bg-white px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
+              />
+            </label>
           </div>
-          <div className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
-            <p className="text-sm font-medium text-slate-900">Weekly Goal</p>
-            <p className="mt-1 text-sm text-slate-600">Choose number of skills to improve per week.</p>
+
+          <label className="block">
+            <span className="mb-2 block text-xs font-medium uppercase tracking-[0.12em] text-slate-500">Bio / Summary</span>
+            <textarea
+              name="bio"
+              value={profileForm.bio}
+              onChange={handleProfileFieldChange}
+              rows={4}
+              placeholder="Write a short professional summary..."
+              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400"
+            />
+          </label>
+
+          {profileError && <p className="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{profileError}</p>}
+          {profileSuccess && <p className="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{profileSuccess}</p>}
+
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-sky-100 bg-sky-50/70 p-4">
+            <p className="text-xs text-slate-600">Email: <span className="font-medium text-slate-800">{user?.email || "-"}</span></p>
+            <button
+              type="submit"
+              disabled={profileSaving}
+              className="inline-flex h-11 items-center justify-center rounded-xl bg-gradient-to-r from-sky-600 to-cyan-500 px-5 text-sm font-semibold text-white shadow-md shadow-cyan-200 disabled:opacity-70"
+            >
+              {profileSaving ? "Saving..." : "Save Bio Data"}
+            </button>
           </div>
-        </div>
+        </form>
       </motion.section>
     );
   }

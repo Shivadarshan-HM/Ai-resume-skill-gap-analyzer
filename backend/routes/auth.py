@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from database import db
-from models.user import User
+from models.user import User, UserProfile
 from services.email_service import send_otp_email, verify_otp
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -141,3 +141,51 @@ def me():
     if not user:
         return jsonify({"error": "User not found."}), 404
     return jsonify({"user": user.to_dict()}), 200
+
+
+@auth_bp.get("/profile")
+@jwt_required()
+def get_profile():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found."}), 404
+    return jsonify({"user": user.to_dict()}), 200
+
+
+@auth_bp.put("/profile")
+@jwt_required()
+def update_profile():
+    user_id = get_jwt_identity()
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({"error": "User not found."}), 404
+
+    payload = request.get_json(silent=True) or {}
+
+    full_name = payload.get("full_name")
+    if isinstance(full_name, str):
+        normalized_name = full_name.strip()
+        if not normalized_name:
+            return jsonify({"error": "Full name cannot be empty."}), 400
+        user.full_name = normalized_name
+
+    profile = user.profile
+    if not profile:
+        profile = UserProfile(user_id=user.id)
+        db.session.add(profile)
+
+    def normalize_text(value):
+        if value is None:
+            return None
+        return str(value).strip()
+
+    profile.summary = normalize_text(payload.get("bio", payload.get("summary")))
+    profile.phone = normalize_text(payload.get("phone"))
+    profile.location = normalize_text(payload.get("location"))
+    profile.linkedin_url = normalize_text(payload.get("linkedin_url"))
+    profile.github_url = normalize_text(payload.get("github_url"))
+    profile.portfolio_url = normalize_text(payload.get("portfolio_url"))
+
+    db.session.commit()
+    return jsonify({"message": "Profile updated successfully.", "user": user.to_dict()}), 200
