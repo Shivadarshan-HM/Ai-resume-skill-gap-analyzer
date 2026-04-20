@@ -309,8 +309,19 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   function renderSettings() {
     return (
       <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-        <h3 className="text-xl font-semibold text-slate-900">Settings - Bio Data</h3>
-        <p className="mt-1 text-sm text-slate-500">Add your personal information so your profile is complete and easier to manage.</p>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h3 className="text-xl font-semibold text-slate-900">Settings - Bio Data</h3>
+            <p className="mt-1 text-sm text-slate-500">Add your personal information so your profile is complete and easier to manage.</p>
+          </div>
+          <button
+            type="button"
+            onClick={onLogout}
+            className="inline-flex h-10 items-center justify-center rounded-xl border border-gray-200 bg-white px-4 text-sm font-medium text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
+          >
+            Logout
+          </button>
+        </div>
 
         <form className="mt-5 space-y-4" onSubmit={handleProfileSave}>
           <div className="grid gap-4 sm:grid-cols-2">
