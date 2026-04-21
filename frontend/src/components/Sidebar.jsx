@@ -88,14 +88,14 @@ const MENU_ITEMS = [
   }
 ];
 
-const GOALS_KEY = "cv_weekly_goals";
+const getGoalsKey = () => { try { const u = JSON.parse(localStorage.getItem("user") || "{}"); return `cv_weekly_goals_${u.id || "guest"}`; } catch { return "cv_weekly_goals_guest"; } };
 
 function loadGoals() {
-  try { return JSON.parse(localStorage.getItem(GOALS_KEY) || "[]"); }
+  try { return JSON.parse(localStorage.getItem(getGoalsKey()) || "[]"); }
   catch { return []; }
 }
 function saveGoals(goals) {
-  localStorage.setItem(GOALS_KEY, JSON.stringify(goals));
+  localStorage.setItem(getGoalsKey(), JSON.stringify(goals));
 }
 
 function Sidebar({ isOpen, onClose, analysisData }) {

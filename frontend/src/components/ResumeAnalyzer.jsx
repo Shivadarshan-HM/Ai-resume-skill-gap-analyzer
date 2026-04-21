@@ -71,9 +71,9 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
       onAnalysisComplete?.({ ...data, role });
       // Save score history
       try {
-        const history = JSON.parse(localStorage.getItem("cv_score_history") || "[]");
+        const history = JSON.parse(localStorage.getItem(`cv_score_history_${(() => { try { return JSON.parse(localStorage.getItem("user") || "{}").id || "guest"; } catch { return "guest"; } })()}`) || "[]");
         history.unshift({ score: data.match_score ?? 0, role, file: file?.name || "Resume", time: new Date().toISOString() });
-        localStorage.setItem("cv_score_history", JSON.stringify(history.slice(0, 10)));
+        localStorage.setItem(`cv_score_history_${(() => { try { return JSON.parse(localStorage.getItem("user") || "{}").id || "guest"; } catch { return "guest"; } })()}`,  JSON.stringify(history.slice(0, 10)));
         logActivity(`Resume analyzed — "${file?.name || 'Resume'}" for ${role} — Match: ${data.match_score ?? 0}%`);
       } catch {}
     } catch (apiError) {
@@ -285,16 +285,16 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sky-700">Score History</p>
                 {/* historyTick: {historyTick} */}{(() => {
                   try {
-                    const history = JSON.parse(localStorage.getItem("cv_score_history") || "[]");
+                    const history = JSON.parse(localStorage.getItem(`cv_score_history_${(() => { try { return JSON.parse(localStorage.getItem("user") || "{}").id || "guest"; } catch { return "guest"; } })()}`) || "[]");
                     if (history.length === 0) return <p className="mt-2 text-xs text-slate-400">No history yet — analyze your resume to start tracking!</p>;
                     const deleteOne = (idx) => {
-                      const h = JSON.parse(localStorage.getItem("cv_score_history") || "[]");
+                      const h = JSON.parse(localStorage.getItem(`cv_score_history_${(() => { try { return JSON.parse(localStorage.getItem("user") || "{}").id || "guest"; } catch { return "guest"; } })()}`) || "[]");
                       h.splice(idx, 1);
-                      localStorage.setItem("cv_score_history", JSON.stringify(h));
+                      localStorage.setItem(`cv_score_history_${(() => { try { return JSON.parse(localStorage.getItem("user") || "{}").id || "guest"; } catch { return "guest"; } })()}`,  JSON.stringify(h));
                       window.dispatchEvent(new Event("storage"));
                     };
                     const clearAll = () => {
-                      localStorage.removeItem("cv_score_history");
+                      localStorage.removeItem(`cv_score_history_${(() => { try { return JSON.parse(localStorage.getItem("user") || "{}").id || "guest"; } catch { return "guest"; } })()}`);
                       window.dispatchEvent(new Event("storage"));
                     };
                     return (
