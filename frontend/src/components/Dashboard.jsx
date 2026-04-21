@@ -26,18 +26,18 @@ const ROUTE_LABELS = {
 };
 
 // ─── Activity helpers ───────────────────────────────────────────
-const ACTIVITY_KEY = "cv_activity_log";
+const getActivityKey = () => { try { const u = JSON.parse(localStorage.getItem("user") || "{}"); return `cv_activity_log_${u.id || "guest"}`; } catch { return "cv_activity_log_guest"; } };
 
 function loadActivity() {
   try {
-    return JSON.parse(localStorage.getItem(ACTIVITY_KEY) || "[]");
+    return JSON.parse(localStorage.getItem(getActivityKey()) || "[]");
   } catch {
     return [];
   }
 }
 
 function saveActivity(log) {
-  localStorage.setItem(ACTIVITY_KEY, JSON.stringify(log.slice(0, 20))); // keep last 20
+  localStorage.setItem(getActivityKey(), JSON.stringify(log.slice(0, 20))); // keep last 20
 }
 
 export function logActivity(message) {
@@ -247,7 +247,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
           {log.length > 0 && (
             <button
               onClick={() => {
-                localStorage.removeItem(ACTIVITY_KEY);
+                localStorage.removeItem(getActivityKey());
                 setActivityLog([]);
               }}
               className="rounded-xl border border-rose-100 bg-rose-50 px-3 py-1.5 text-xs font-medium text-rose-600 hover:bg-rose-100"
