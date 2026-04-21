@@ -195,16 +195,29 @@ def google_auth():
     import os, requests
     payload = request.get_json(silent=True) or {}
     token = payload.get("token", "").strip()
-    if not token:
+    access_token_val = payload.get("access_token", "").strip()
+    
+    if access_token_val:
+        # OAuth2 access_token flow
+        r = requests.get("https://www.googleapis.com/oauth2/v3/userinfo", 
+            headers={"Authorization": f"Bearer {access_token_val}"}, timeout=10)
+        if r.status_code != 200:
+            return jsonify({"error": "Invalid Google token."}), 401
+        data = r.json()
+        email = payload.get("email", data.get("email", "")).lower()
+        full_name = payload.get("name", data.get("name", email.split("@")[0]))
+    elif token:
+        # id_token flow
+        r = requests.get("https://oauth2.googleapis.com/tokeninfo", params={"id_token": token}, timeout=10)
+        if r.status_code != 200:
+            return jsonify({"error": "Invalid Google token."}), 401
+        data = r.json()
+        if data.get("aud") != os.getenv("GOOGLE_CLIENT_ID"):
+            return jsonify({"error": "Token mismatch."}), 401
+        email = data.get("email", "").lower()
+        full_name = data.get("name", email.split("@")[0])
+    else:
         return jsonify({"error": "Google token required."}), 400
-    r = requests.get("https://oauth2.googleapis.com/tokeninfo", params={"id_token": token}, timeout=10)
-    if r.status_code != 200:
-        return jsonify({"error": "Invalid Google token."}), 401
-    data = r.json()
-    if data.get("aud") != os.getenv("GOOGLE_CLIENT_ID"):
-        return jsonify({"error": "Token mismatch."}), 401
-    email = data.get("email", "").lower()
-    full_name = data.get("name", email.split("@")[0])
     # ✅ FIX: Sirf already registered users ko allow karo
     # Naye users ko Google se auto-register NAHI hoga
     user = User.query.filter_by(email=email).first()

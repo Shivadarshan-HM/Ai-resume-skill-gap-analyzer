@@ -1,4 +1,5 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { logActivity } from "./Dashboard";
 import { motion } from "framer-motion";
 import { analyzeResumeUpload } from "../services/api";
 
@@ -18,6 +19,12 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [historyTick, setHistoryTick] = useState(0);
+  useEffect(() => {
+    const handler = () => setHistoryTick(t => t + 1);
+    window.addEventListener("storage", handler);
+    return () => window.removeEventListener("storage", handler);
+  }, []);
 
   // Use persisted analysisData as output if available
   const analysisOutput = analysisData;
@@ -62,6 +69,13 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
     try {
       const data = await analyzeResumeUpload({ file, prompt, role });
       onAnalysisComplete?.({ ...data, role });
+      // Save score history
+      try {
+        const history = JSON.parse(localStorage.getItem("cv_score_history") || "[]");
+        history.unshift({ score: data.match_score ?? 0, role, file: file?.name || "Resume", time: new Date().toISOString() });
+        localStorage.setItem("cv_score_history", JSON.stringify(history.slice(0, 10)));
+        logActivity(`Resume analyzed — "${file?.name || 'Resume'}" for ${role} — Match: ${data.match_score ?? 0}%`);
+      } catch {}
     } catch (apiError) {
       setError(apiError.message || "Unable to analyze the uploaded resume.");
     } finally {
@@ -254,7 +268,7 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
               ) : null}
             </div>
 
-            <aside className="xl:block" aria-label="Sticky analysis summary">
+            <aside className="block" aria-label="Sticky analysis summary">
               <div className="cv-card xl:sticky xl:top-24">
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sky-700">Quick Summary</p>
                 <ul className="mt-3 space-y-2 text-sm text-slate-700">
@@ -265,6 +279,46 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
                   <li className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2"><span>Suggestions</span><strong>{summaryStats.suggestions}</strong></li>
                 </ul>
                 <p className="mt-3 text-xs leading-5 text-slate-500">Use this summary to track progress after each resume edit and rerun analysis.</p>
+              </div>
+              {/* Score History */}
+              <div className="cv-card mt-4">
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sky-700">Score History</p>
+                {/* historyTick: {historyTick} */}{(() => {
+                  try {
+                    const history = JSON.parse(localStorage.getItem("cv_score_history") || "[]");
+                    if (history.length === 0) return <p className="mt-2 text-xs text-slate-400">No history yet — analyze your resume to start tracking!</p>;
+                    const deleteOne = (idx) => {
+                      const h = JSON.parse(localStorage.getItem("cv_score_history") || "[]");
+                      h.splice(idx, 1);
+                      localStorage.setItem("cv_score_history", JSON.stringify(h));
+                      window.dispatchEvent(new Event("storage"));
+                    };
+                    const clearAll = () => {
+                      localStorage.removeItem("cv_score_history");
+                      window.dispatchEvent(new Event("storage"));
+                    };
+                    return (
+                      <>
+                        <ul className="mt-3 space-y-2">
+                          {history.slice(0,5).map((h, i) => (
+                            <li key={i} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 group">
+                              <div className="flex-1 min-w-0">
+                                <p className="text-xs font-medium text-slate-700">{h.role}</p>
+                                <p className="text-[10px] text-slate-500 truncate max-w-[120px]">{h.file || "Resume"}</p>
+                                <p className="text-[10px] text-slate-400">{new Date(h.time).toLocaleDateString("en-IN", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"})}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`text-sm font-bold ${h.score >= 70 ? "text-emerald-600" : h.score >= 40 ? "text-amber-500" : "text-rose-500"}`}>{h.score}%</span>
+                                <button onClick={() => deleteOne(i)} className="text-rose-400 hover:text-rose-600 transition text-xs font-bold">✕</button>
+                              </div>
+                            </li>
+                          ))}
+                        </ul>
+                        <button onClick={clearAll} className="mt-3 w-full rounded-lg border border-rose-100 bg-rose-50 py-1.5 text-xs font-medium text-rose-500 hover:bg-rose-100 transition">Clear All History</button>
+                      </>
+                    );
+                  } catch { return null; }
+                })()}
               </div>
             </aside>
           </div>

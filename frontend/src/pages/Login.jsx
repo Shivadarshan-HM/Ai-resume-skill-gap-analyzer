@@ -40,6 +40,7 @@ function Login({ onLoginSuccess }) {
       window.google?.accounts?.id?.initialize({
         client_id: GOOGLE_CLIENT_ID,
         callback: handleGoogleResponse,
+        use_fedcm_for_prompt: false,
       });
     });
   }, []);
@@ -72,9 +73,34 @@ function Login({ onLoginSuccess }) {
 
   function handleGoogleClick() {
     if (!GOOGLE_CLIENT_ID) { setError("Google Client ID not configured."); return; }
-    window.google?.accounts?.id?.prompt();
+    const client = window.google?.accounts?.oauth2?.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: "email profile openid",
+      callback: async (tokenResponse) => {
+        if (tokenResponse.error) { setError("Google login failed."); return; }
+        setOauthLoading(true);
+        try {
+          const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+            headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+          });
+          const userInfo = await userInfoRes.json();
+          const res = await fetch(`${API_URL}/auth/google`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ access_token: tokenResponse.access_token, email: userInfo.email, name: userInfo.name }),
+          });
+          const data = await res.json();
+          if (!res.ok) { setError(data.error || "Google login failed."); return; }
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
+          setSuccess("Google login successful! Redirecting...");
+          setTimeout(() => { if (onLoginSuccess) onLoginSuccess(data.user); }, 800);
+        } catch { setError("Unable to connect to server."); }
+        finally { setOauthLoading(false); }
+      },
+    });
+    client?.requestAccessToken();
   }
-
   async function handleSendOtp(event) {
     event.preventDefault(); setError("");
     if (!fullName.trim() || !email.trim() || !password.trim()) { setError("All fields are required."); return; }

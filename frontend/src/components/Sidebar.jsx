@@ -243,7 +243,7 @@ function Sidebar({ isOpen, onClose, analysisData }) {
           {total === 0 ? (
             <p className="mt-2 text-xs text-slate-500">Analyze your resume to get auto goals, or add one with +</p>
           ) : (
-            <ul className="mt-2 space-y-1.5">
+            <ul className="mt-2 space-y-1.5 max-h-40 overflow-y-auto pr-1">
               {goals.map(goal => (
                 <li key={goal.id} className="group flex items-start gap-2">
                   <button

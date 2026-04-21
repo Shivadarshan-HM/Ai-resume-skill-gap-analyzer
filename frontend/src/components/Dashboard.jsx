@@ -62,9 +62,11 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   });
   const [profileSaving, setProfileSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [showNotif, setShowNotif] = useState(false);
   const [profileError, setProfileError] = useState("");
   const [profileSuccess, setProfileSuccess] = useState("");
   const [savedProfile, setSavedProfile] = useState(null); // ✅ FIX 3: show saved data after save
+  const profilePct = Math.round(["full_name","phone","location","linkedin_url","github_url","portfolio_url","bio"].filter(k => savedProfile?.[k]).length / 7 * 100);
   const location = useLocation();
 
   const initials = user?.full_name ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "U";
@@ -85,12 +87,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   }, [activePath]);
 
   // ✅ FIX 2: Log when resume is analyzed
-  useEffect(() => {
-    const roleLabel = analysisData?.target_role || analysisData?.role;
-    if (roleLabel) {
-      logActivity(`Resume analyzed for "${roleLabel}" — Match: ${analysisData.match_score ?? 0}%`);
-    }
-  }, [analysisData]);
+
 
   useEffect(() => {
     setProfileForm({
@@ -422,13 +419,48 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={onLogout}
-                    className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-red-200 hover:bg-red-50 hover:text-red-600"
-                  >
-                    Logout
-                  </button>
+                  {/* Right side professional elements */}
+                  <div className="hidden sm:flex items-center gap-3 ml-auto">
+                    <div className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm text-xs text-slate-500 font-medium">
+                      <svg className="h-3.5 w-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                      {new Date().toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+                    </div>
+                    <div className="relative">
+                      <button onClick={() => setShowNotif(v => !v)} className="relative rounded-xl border border-gray-200 bg-white p-2 shadow-sm hover:bg-gray-50 transition">
+                        <svg className="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+                        {loadActivity().length > 0 && <span className="absolute -top-0.5 -right-0.5 h-2 w-2 rounded-full bg-blue-500"></span>}
+                      </button>
+                      {showNotif && (
+                        <div className="absolute right-0 top-10 z-50 w-72 rounded-2xl border border-gray-200 bg-white shadow-xl">
+                          <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
+                            <span className="text-sm font-semibold text-slate-800">Notifications</span>
+                            <button onClick={() => setShowNotif(false)} className="text-slate-400 hover:text-slate-600 text-xs">✕</button>
+                          </div>
+                          <div className="max-h-60 overflow-y-auto">
+                            {loadActivity().length === 0 ? (
+                              <p className="px-4 py-6 text-center text-xs text-slate-400">No notifications yet</p>
+                            ) : loadActivity().slice(0,8).map((a, i) => (
+                              <div key={i} className="border-b border-gray-50 px-4 py-3 last:border-0">
+                                <p className="text-xs text-slate-700">{a.message}</p>
+                                <p className="mt-0.5 text-[10px] text-slate-400">{new Date(a.time).toLocaleString("en-IN", {day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"})}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
+                      <div className="relative h-7 w-7">
+                        <svg className="h-7 w-7 -rotate-90" viewBox="0 0 28 28">
+                          <circle cx="14" cy="14" r="11" fill="none" stroke="#e2e8f0" strokeWidth="3"/>
+                          <circle cx="14" cy="14" r="11" fill="none" stroke="#3b82f6" strokeWidth="3" strokeDasharray={`${(profilePct * 0.69).toFixed(1)} 69`}/>
+                        </svg>
+                        <span className="absolute inset-0 flex items-center justify-center text-[8px] font-bold text-blue-600">{profilePct}%</span>
+                      </div>
+                      <span className="text-xs font-medium text-slate-600">Profile</span>
+                    </div>
+                  </div>
+
                 </div>
               )}
 
