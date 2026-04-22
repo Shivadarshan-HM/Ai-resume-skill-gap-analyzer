@@ -180,7 +180,7 @@ function Sidebar({ isOpen, onClose, analysisData }) {
           {MENU_ITEMS.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} onClick={onClose}>
               {({ isActive }) => (
-                <motion.div
+                <div
                   className={`group flex w-full items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition duration-300 ${
                     isActive
                       ? "border-cyan-200 bg-gradient-to-r from-sky-50 to-cyan-50 text-sky-700 shadow-sm"
@@ -190,7 +190,7 @@ function Sidebar({ isOpen, onClose, analysisData }) {
                 >
                   <span className={`${isActive ? "text-sky-600" : "text-slate-500"}`}>{item.icon}</span>
                   <span>{item.label}</span>
-                </motion.div>
+                </div>
               )}
             </NavLink>
           ))}

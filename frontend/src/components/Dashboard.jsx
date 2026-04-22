@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import ATSCard from "./ATSCard";
@@ -51,6 +51,8 @@ export function logActivity(message) {
 function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData, analysisLoading, setAnalysisLoading }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activityLog, setActivityLog] = useState([]);
+  const [selectedActivity, setSelectedActivity] = useState(null);
+  const [showProfile, setShowProfile] = useState(false);
   const [profileForm, setProfileForm] = useState({
     full_name: "",
     bio: "",
@@ -81,6 +83,14 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   const activeSection = ROUTE_LABELS[activePath] || "Overview";
 
   // ✅ FIX 2: Load activity when Activity tab opens
+  // close profile dropdown on outside click
+  useEffect(() => {
+    if (!showProfile) return;
+    const handler = () => setShowProfile(false);
+    document.addEventListener("click", handler);
+    return () => document.removeEventListener("click", handler);
+  }, [showProfile]);
+
   useEffect(() => {
     if (activePath === "/dashboard/activity") {
       setActivityLog(loadActivity());
@@ -237,7 +247,6 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   // ✅ FIX 2: Real activity from localStorage
   function renderActivity() {
     const log = activityLog;
-    const [selectedItem, setSelectedItem] = React.useState(null);
 
     return (
       <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -266,16 +275,17 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
             </div>
           ) : (
             log.map((item, index) => (
-              <div key={index} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 cursor-pointer hover:border-sky-200 hover:bg-sky-50 transition" onClick={() => setSelectedItem(selectedItem === index ? null : index)}>
+              <div key={index} onClick={() => setSelectedActivity(selectedActivity === index ? null : index)} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 cursor-pointer hover:border-sky-200 hover:bg-sky-50 transition">
                 <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700">{index + 1}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-slate-700">{item.message}</p>
                   <p className="mt-0.5 text-xs text-slate-400">{new Date(item.time).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p>
-                  {selectedItem === index && (
-                    <div className="mt-2 rounded-xl border border-sky-100 bg-sky-50 px-3 py-2">
-                      <p className="text-xs font-semibold text-sky-700 mb-1">Details</p>
-                      <p className="text-xs text-slate-600">{item.message}</p>
-                      <p className="mt-1 text-xs text-slate-400">Time: {new Date(item.time).toLocaleString("en-IN", { dateStyle: "long", timeStyle: "medium" })}</p>
+                  {selectedActivity === index && (
+                    <div className="mt-2 rounded-xl border border-sky-100 bg-sky-50 px-3 py-2 space-y-1">
+                      <p className="text-xs font-semibold text-sky-700">Activity Detail</p>
+                      <p className="text-xs text-slate-500">Action: <span className="font-medium text-slate-700">{item.message.split("—")[0]?.trim()}</span></p>
+                      {item.message.includes("—") && <p className="text-xs text-slate-500">Info: <span className="font-medium text-slate-700">{item.message.split("—").slice(1).join("—").trim()}</span></p>}
+                      <p className="text-xs text-slate-400">Full date: {new Date(item.time).toLocaleString("en-IN", { dateStyle: "long", timeStyle: "medium" })}</p>
                     </div>
                   )}
                 </div>
@@ -313,7 +323,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
           <div className="rounded-3xl border border-emerald-100 bg-gradient-to-br from-white to-emerald-50 p-6 shadow-md">
             <div className="flex items-center justify-between mb-4">
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-emerald-600">Your Saved Profile</p>
-              <button onClick={() => setEditMode(true)} className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100 transition">✏️ Edit Profile</button>
+              <button onClick={() => setEditMode(true)} className="rounded-xl border border-sky-200 bg-sky-50 px-4 py-1.5 text-xs font-semibold text-sky-700 hover:bg-sky-100 transition">Edit Profile</button>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
               {savedProfile.full_name && <div className="rounded-xl border border-slate-100 bg-white p-3"><p className="text-xs text-slate-400">Full Name</p><p className="mt-0.5 text-sm font-medium text-slate-800">{savedProfile.full_name}</p></div>}
@@ -419,8 +429,8 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
                         <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
                       </svg>
                     </button>
-                    <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
-                      <button onClick={() => navigate("/dashboard/settings")} title="View Profile" className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-xs font-semibold text-white hover:opacity-80 transition cursor-pointer">{initials}</button>
+                    <div className="flex items-center gap-3">
+                      <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-cyan-500 text-sm font-bold text-white shadow">{initials}</div>
                       <div>
                         <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Welcome, {user?.full_name?.split(" ")[0] || "User"}</h1>
                         <p className="mt-1 text-sm text-slate-500">Build a stronger resume with focused AI guidance and ATS friendly formatting</p>
@@ -458,7 +468,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
                         </div>
                       )}
                     </div>
-                    <div className="flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
+                    <div onClick={(e) => { e.stopPropagation(); setShowProfile(v => !v); }} className="relative flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm cursor-pointer hover:border-sky-300 transition">
                       <div className="relative h-7 w-7">
                         <svg className="h-7 w-7 -rotate-90" viewBox="0 0 28 28">
                           <circle cx="14" cy="14" r="11" fill="none" stroke="#e2e8f0" strokeWidth="3"/>
@@ -468,6 +478,15 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
                       </div>
                       <span className="text-xs font-medium text-slate-600">Profile</span>
                     </div>
+                    {showProfile && (
+                      <div className="absolute right-0 top-14 z-[999] w-64 rounded-2xl border border-slate-200 bg-white shadow-2xl p-4">
+                        <p className="text-xs text-slate-400 uppercase tracking-wide mb-2">Profile</p>
+                        <p className="text-sm font-semibold text-slate-800">{user?.full_name || "User"}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">{user?.email || ""}</p>
+                        <hr className="my-3 border-slate-100" />
+                        <button onClick={(e) => { e.stopPropagation(); setShowProfile(false); navigate("/dashboard/settings"); }} className="w-full text-left text-xs text-sky-600 hover:text-sky-800 font-medium">Edit Profile in Settings</button>
+                      </div>
+                    )}
                   </div>
 
                 </div>
