@@ -215,7 +215,7 @@ function Login({ onLoginSuccess }) {
               <>
                 <form className="mt-8 space-y-4" onSubmit={handleSendOtp}>
                   <label className="block"><span className="mb-2 block text-xs font-medium text-slate-500">Full Name</span>
-                    <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="User Name" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
+                    <input type="text" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="First Name Last Name" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
                   <label className="block"><span className="mb-2 block text-xs font-medium text-slate-500">Email</span>
                     <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="user@gmail.com" className="h-12 w-full rounded-xl border border-gray-200 bg-gray-50 px-4 text-sm text-slate-700 outline-none transition focus:ring-2 focus:ring-sky-400" /></label>
                   <label className="block"><span className="mb-2 block text-xs font-medium text-slate-500">Password</span>

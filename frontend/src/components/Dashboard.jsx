@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import ATSCard from "./ATSCard";
 import ChatAssistant from "./ChatAssistant";
 import JobMatch from "./JobMatch";
@@ -68,6 +68,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   const [savedProfile, setSavedProfile] = useState(null); // ✅ FIX 3: show saved data after save
   const profilePct = Math.round(["full_name","phone","location","linkedin_url","github_url","portfolio_url","bio"].filter(k => savedProfile?.[k]).length / 7 * 100);
   const location = useLocation();
+  const navigate = useNavigate();
 
   const initials = user?.full_name ? user.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2) : "U";
   const score = analysisData?.match_score ?? 0;
@@ -236,6 +237,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   // ✅ FIX 2: Real activity from localStorage
   function renderActivity() {
     const log = activityLog;
+    const [selectedItem, setSelectedItem] = React.useState(null);
 
     return (
       <motion.section className="rounded-3xl border border-white/70 bg-white/80 p-6 shadow-lg backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -264,11 +266,18 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
             </div>
           ) : (
             log.map((item, index) => (
-              <div key={index} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4">
+              <div key={index} className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-4 cursor-pointer hover:border-sky-200 hover:bg-sky-50 transition" onClick={() => setSelectedItem(selectedItem === index ? null : index)}>
                 <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-sky-100 text-xs font-semibold text-sky-700">{index + 1}</span>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-slate-700">{item.message}</p>
                   <p className="mt-0.5 text-xs text-slate-400">{new Date(item.time).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}</p>
+                  {selectedItem === index && (
+                    <div className="mt-2 rounded-xl border border-sky-100 bg-sky-50 px-3 py-2">
+                      <p className="text-xs font-semibold text-sky-700 mb-1">Details</p>
+                      <p className="text-xs text-slate-600">{item.message}</p>
+                      <p className="mt-1 text-xs text-slate-400">Time: {new Date(item.time).toLocaleString("en-IN", { dateStyle: "long", timeStyle: "medium" })}</p>
+                    </div>
+                  )}
                 </div>
               </div>
             ))
@@ -411,9 +420,9 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
                       </svg>
                     </button>
                     <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-3 py-2 shadow-sm">
-                      <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-xs font-semibold text-white">{initials}</span>
+                      <button onClick={() => navigate("/dashboard/settings")} title="View Profile" className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 text-xs font-semibold text-white hover:opacity-80 transition cursor-pointer">{initials}</button>
                       <div>
-                        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Welcome, {user?.full_name?.split(" ")[0] || "User"} 👋</h1>
+                        <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">Welcome, {user?.full_name?.split(" ")[0] || "User"}</h1>
                         <p className="mt-1 text-sm text-slate-500">Build a stronger resume with focused AI guidance and ATS friendly formatting</p>
                       </div>
                     </div>

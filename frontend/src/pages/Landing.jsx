@@ -184,7 +184,7 @@ function Landing() {
         <header className="sticky top-4 z-20 rounded-2xl border border-white/80 bg-white/85 p-3 shadow-lg backdrop-blur-md">
           <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <img src="/cvisionary-logo.svg" alt="CVisionary" className="h-11 w-11 rounded-2xl object-cover shadow-md" />
+            <button onClick={() => window.scrollTo({top:0,behavior:"smooth"})} className="focus:outline-none"><img src="/cvisionary-logo.svg" alt="CVisionary" className="h-11 w-11 rounded-2xl object-cover shadow-md hover:opacity-80 transition cursor-pointer" /></button>
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-slate-500">AI Career Studio</p>
               <h1 className="text-lg font-semibold text-slate-900">CVisionary</h1>

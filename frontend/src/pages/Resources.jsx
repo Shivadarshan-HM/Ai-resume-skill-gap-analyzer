@@ -15,7 +15,7 @@ const TYPE_COLORS = {
 function Resources({ analysisData }) {
   const roles = Object.keys(resourcesData);
   const [selectedRole, setSelectedRole] = useState(roles[0]);
-  const [selectedSkill, setSelectedSkill] = useState("All");
+  const [selectedSkills, setSelectedSkills] = useState([]);
 
   // ✅ Auto-select role whenever analysisData changes
   useEffect(() => {
@@ -25,7 +25,7 @@ function Resources({ analysisData }) {
       );
       if (matched) {
         setSelectedRole(matched);
-        setSelectedSkill("All");
+        setSelectedSkills([]);
       }
     }
   }, [analysisData]);
@@ -62,7 +62,7 @@ function Resources({ analysisData }) {
                 key={role}
                 onClick={() => {
                   setSelectedRole(role);
-                  setSelectedSkill("All");
+                  setSelectedSkills([]);
                 }}
                 className={`flex items-center gap-1.5 rounded-xl border px-4 py-2 text-sm font-medium transition duration-200 ${
                   selectedRole === role
@@ -86,12 +86,12 @@ function Resources({ analysisData }) {
 
         {/* Skill Filter */}
         <div className="mt-3 flex flex-wrap gap-2">
-          {skills.map((skill) => (
+          {skills.filter(s => s !== "All").map((skill) => (
             <button
               key={skill}
-              onClick={() => setSelectedSkill(skill)}
+              onClick={() => setSelectedSkills(prev => prev.includes(skill) ? prev.filter(s => s !== skill) : [...prev, skill])}
               className={`rounded-full border px-3 py-1 text-xs font-medium transition duration-200 ${
-                selectedSkill === skill
+                selectedSkills.includes(skill)
                   ? "border-cyan-500 bg-cyan-500 text-white"
                   : "border-gray-200 bg-gray-50 text-slate-500 hover:border-cyan-300 hover:text-cyan-600"
               }`}

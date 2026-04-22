@@ -168,7 +168,7 @@ function Sidebar({ isOpen, onClose, analysisData }) {
       >
         {/* Logo */}
         <div className="mb-8 flex items-center gap-3">
-          <img src="/cvisionary-logo.svg" alt="CVisionary" className="h-11 w-11 rounded-2xl object-cover shadow-md" />
+          <NavLink to="/dashboard" onClick={onClose}><img src="/cvisionary-logo.svg" alt="CVisionary" className="h-11 w-11 rounded-2xl object-cover shadow-md hover:opacity-80 transition" /></NavLink>
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Career Studio</p>
             <h2 className="text-lg font-semibold text-slate-900">CVisionary</h2>
