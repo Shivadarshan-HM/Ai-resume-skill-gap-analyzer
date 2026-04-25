@@ -43,8 +43,14 @@ const JOB_SITES = [
 const ROLE_OPTIONS = [
   "Frontend Developer",
   "Backend Developer",
-  "Data Scientist",
   "Full Stack Developer",
+  "Data Scientist",
+  "Data Analyst",
+  "DevOps Engineer",
+  "ML Engineer",
+  "UI/UX Designer",
+  "Product Manager",
+  "Cloud Engineer",
 ];
 
 // Detect role from job description text

@@ -10,7 +10,18 @@ import Sidebar from "./Sidebar";
 import SkillRoadmap from "./SkillRoadmap";
 import StatsCard from "./StatsCard";
 
-const ROLE_OPTIONS = ["Frontend Developer", "Backend Developer", "Data Scientist", "Full Stack Developer"];
+const ROLE_OPTIONS = [
+  "Frontend Developer",
+  "Backend Developer",
+  "Full Stack Developer",
+  "Data Scientist",
+  "Data Analyst",
+  "DevOps Engineer",
+  "ML Engineer",
+  "UI/UX Designer",
+  "Product Manager",
+  "Cloud Engineer",
+];
 const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
 
 const ROUTE_LABELS = {

@@ -60,12 +60,39 @@ def build_analysis(resume_text: str, prompt: str, role: str = "") -> dict:
 
     if prompt.strip():
         role_text = f" for the role '{role}'" if role else ""
-        analysis = (
-            f"You asked: '{prompt.strip()}'\n\n"
-            f"Based on the uploaded resume{role_text}, focus on strengthening role-specific achievements, "
-            "explicit tools/technologies, and concise impact statements. "
-            "Your strongest areas are listed under highlighted skills."
-        )
+        # Extract skills mentioned in job description/prompt
+        jd_text = prompt.strip().lower()
+        all_skills = [
+            "python","javascript","react","node","sql","aws","docker","kubernetes",
+            "machine learning","deep learning","tensorflow","pytorch","java","c++",
+            "typescript","mongodb","postgresql","redis","graphql","rest api",
+            "git","linux","agile","scrum","figma","excel","tableau","power bi",
+            "flask","django","fastapi","next.js","vue","angular","terraform","ci/cd",
+            "data analysis","nlp","computer vision","pandas","numpy","scikit-learn"
+        ]
+        jd_skills = [s for s in all_skills if s in jd_text]
+        resume_lower = resume_text.lower()
+        resume_has = [s for s in jd_skills if s in resume_lower]
+        resume_missing = [s for s in jd_skills if s not in resume_lower]
+
+        if jd_skills:
+            match_pct = int(len(resume_has) / len(jd_skills) * 100) if jd_skills else 0
+            analysis = (
+                f"Job Description Analysis{role_text}:\n\n"
+                f"JD Match Score: {match_pct}%\n"
+                f"Skills required by JD: {', '.join(jd_skills) if jd_skills else 'None detected'}\n"
+                f"Skills you have: {', '.join(resume_has) if resume_has else 'None matched'}\n"
+                f"Skills to add: {', '.join(resume_missing) if resume_missing else 'All covered!'}\n\n"
+                f"Tip: Tailor your resume to include these missing skills with real project examples."
+            )
+            if resume_missing:
+                suggestions[:0] = [f"Add '{s}' to your resume with a real project example." for s in resume_missing[:3]]
+        else:
+            analysis = (
+                f"You asked: '{prompt.strip()}'\n\n"
+                f"Based on the uploaded resume{role_text}, focus on strengthening role-specific achievements, "
+                "explicit tools/technologies, and concise impact statements."
+            )
     else:
         analysis = (
             "Your resume analysis is ready. Improve clarity by emphasizing achievements, "
