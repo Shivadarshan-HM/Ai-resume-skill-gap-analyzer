@@ -21,6 +21,10 @@ const ROLE_OPTIONS = [
   "UI/UX Designer",
   "Product Manager",
   "Cloud Engineer",
+  "Cybersecurity Engineer",
+  "Mobile Developer",
+  "Blockchain Developer",
+  "Game Developer",
 ];
 const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
 
@@ -59,7 +63,7 @@ export function logActivity(message) {
 
 // ────────────────────────────────────────────────────────────────
 
-function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData, analysisLoading, setAnalysisLoading }) {
+function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData, analysisLoading, setAnalysisLoading, selectedFile, setSelectedFile, savedPrompt, setSavedPrompt, savedRole, setSavedRole }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activityLog, setActivityLog] = useState([]);
   const [selectedActivity, setSelectedActivity] = useState(null);
@@ -383,7 +387,7 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
   }
   function renderContent() {
     if (activePath === "/dashboard/analyze") {
-      return <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={(data) => setAnalysisData({ ...data, target_role: data.role })} onLoadingChange={setAnalysisLoading} analysisData={analysisData} />;
+      return <ResumeAnalyzer roles={ROLE_OPTIONS} onAnalysisComplete={(data) => setAnalysisData({ ...data, target_role: data.role })} onLoadingChange={setAnalysisLoading} analysisData={analysisData} selectedFile={selectedFile} setSelectedFile={setSelectedFile} savedPrompt={savedPrompt} setSavedPrompt={setSavedPrompt} savedRole={savedRole} setSavedRole={setSavedRole} />;
     }
     if (activePath === "/dashboard/chat") {
       return <ChatAssistant quickPrompts={quickPrompts} />;

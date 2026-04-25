@@ -474,5 +474,157 @@
       "type": "Guide",
       "url": "https://cloudsecurityalliance.org/research/"
     }
+  ],
+  "Cybersecurity Engineer": [
+    {
+      "skill": "Network Security",
+      "title": "CompTIA Security+ Guide",
+      "type": "Guide",
+      "url": "https://www.comptia.org/certifications/security"
+    },
+    {
+      "skill": "Ethical Hacking",
+      "title": "Hack The Box",
+      "type": "Course",
+      "url": "https://www.hackthebox.com/"
+    },
+    {
+      "skill": "OWASP",
+      "title": "OWASP Top 10",
+      "type": "Docs",
+      "url": "https://owasp.org/www-project-top-ten/"
+    },
+    {
+      "skill": "Linux",
+      "title": "Linux Security Basics",
+      "type": "Tutorial",
+      "url": "https://linuxjourney.com/"
+    },
+    {
+      "skill": "Python",
+      "title": "Python for Security",
+      "type": "Course",
+      "url": "https://www.cybrary.it/course/python/"
+    },
+    {
+      "skill": "SIEM",
+      "title": "Splunk Free Training",
+      "type": "Course",
+      "url": "https://www.splunk.com/en_us/training/free-courses/splunk-fundamentals-1.html"
+    }
+  ],
+  "Mobile Developer": [
+    {
+      "skill": "React Native",
+      "title": "React Native Docs",
+      "type": "Docs",
+      "url": "https://reactnative.dev/docs/getting-started"
+    },
+    {
+      "skill": "Flutter",
+      "title": "Flutter Official Docs",
+      "type": "Docs",
+      "url": "https://docs.flutter.dev/"
+    },
+    {
+      "skill": "Swift",
+      "title": "Apple Swift Tutorials",
+      "type": "Tutorial",
+      "url": "https://developer.apple.com/tutorials/swiftui"
+    },
+    {
+      "skill": "Kotlin",
+      "title": "Android Kotlin Course",
+      "type": "Course",
+      "url": "https://developer.android.com/courses/android-basics-kotlin/course"
+    },
+    {
+      "skill": "Firebase",
+      "title": "Firebase Docs",
+      "type": "Docs",
+      "url": "https://firebase.google.com/docs"
+    },
+    {
+      "skill": "App Store",
+      "title": "App Distribution Guide",
+      "type": "Guide",
+      "url": "https://developer.apple.com/distribute/"
+    }
+  ],
+  "Blockchain Developer": [
+    {
+      "skill": "Solidity",
+      "title": "CryptoZombies - Learn Solidity",
+      "type": "Course",
+      "url": "https://cryptozombies.io/"
+    },
+    {
+      "skill": "Web3.js",
+      "title": "Web3.js Docs",
+      "type": "Docs",
+      "url": "https://web3js.readthedocs.io/"
+    },
+    {
+      "skill": "Ethereum",
+      "title": "Ethereum Dev Docs",
+      "type": "Docs",
+      "url": "https://ethereum.org/en/developers/"
+    },
+    {
+      "skill": "Smart Contracts",
+      "title": "Hardhat Tutorial",
+      "type": "Tutorial",
+      "url": "https://hardhat.org/tutorial"
+    },
+    {
+      "skill": "DeFi",
+      "title": "DeFi Developer Roadmap",
+      "type": "Roadmap",
+      "url": "https://github.com/OffcierCia/DeFi-Developer-Road-Map"
+    },
+    {
+      "skill": "IPFS",
+      "title": "IPFS Docs",
+      "type": "Docs",
+      "url": "https://docs.ipfs.tech/"
+    }
+  ],
+  "Game Developer": [
+    {
+      "skill": "Unity",
+      "title": "Unity Learn",
+      "type": "Course",
+      "url": "https://learn.unity.com/"
+    },
+    {
+      "skill": "Unreal Engine",
+      "title": "Unreal Online Learning",
+      "type": "Course",
+      "url": "https://www.unrealengine.com/en-US/learn"
+    },
+    {
+      "skill": "C#",
+      "title": "C# for Unity",
+      "type": "Tutorial",
+      "url": "https://docs.microsoft.com/en-us/dotnet/csharp/"
+    },
+    {
+      "skill": "Game Design",
+      "title": "GDC Talks",
+      "type": "Video",
+      "url": "https://www.youtube.com/c/Gdconf"
+    },
+    {
+      "skill": "Blender",
+      "title": "Blender Guru Tutorials",
+      "type": "Tutorial",
+      "url": "https://www.blenderguru.com/"
+    },
+    {
+      "skill": "Physics",
+      "title": "Game Physics Tutorial",
+      "type": "Blog",
+      "url": "https://gafferongames.com/"
+    }
   ]
 }

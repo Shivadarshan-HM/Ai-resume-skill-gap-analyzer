@@ -13,10 +13,13 @@ function toSuggestionText(item) {
   return `${skill}${how}${priority}`.trim();
 }
 
-function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisData }) {
-  const [file, setFile] = useState(null);
-  const [role, setRole] = useState(analysisData?.role || "");
-  const [prompt, setPrompt] = useState("");
+function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisData, selectedFile, setSelectedFile, savedPrompt, setSavedPrompt, savedRole, setSavedRole }) {
+  const file = selectedFile;
+  const setFile = setSelectedFile;
+  const prompt = savedPrompt ?? "";
+  const setPrompt = setSavedPrompt;
+  const role = savedRole ?? analysisData?.role ?? "";
+  const setRole = setSavedRole;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [historyTick, setHistoryTick] = useState(0);
@@ -98,13 +101,31 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
       <form onSubmit={handleSubmit} className="mt-5 space-y-5">
         <label className="block">
           <span className="mb-2 block text-sm font-medium text-slate-700">Resume File</span>
-          <input
-            type="file"
-            accept=".pdf,.doc,.docx,.txt"
-            onChange={(event) => setFile(event.target.files?.[0] || null)}
-            className="cv-input shadow-sm file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-sky-700"
-            aria-describedby="resume-file-help"
-          />
+          <div className="relative rounded-xl border border-gray-200 bg-gray-50 shadow-sm">
+            {file ? (
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <svg className="h-4 w-4 shrink-0 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                  <span className="truncate text-sm text-slate-700">{file.name}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFile(null)}
+                  className="ml-3 shrink-0 rounded-lg bg-rose-100 px-2 py-1 text-xs font-semibold text-rose-600 hover:bg-rose-200 transition"
+                >
+                  X
+                </button>
+              </div>
+            ) : (
+              <input
+                type="file"
+                accept=".pdf,.doc,.docx,.txt"
+                onChange={(event) => setFile(event.target.files?.[0] || null)}
+                className="w-full cursor-pointer rounded-xl bg-transparent px-4 py-3 text-sm text-slate-700 file:mr-3 file:rounded-lg file:border-0 file:bg-sky-600 file:px-3 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-sky-700"
+                aria-describedby="resume-file-help"
+              />
+            )}
+          </div>
           <p id="resume-file-help" className="mt-2 text-xs text-slate-500">Supported formats: PDF, DOC, DOCX, TXT.</p>
           {analysisOutput?.role && !file && (
             <p className="mt-1 text-xs text-slate-400">Last analyzed: <span className="text-sky-600 font-medium">{analysisOutput.role}</span></p>

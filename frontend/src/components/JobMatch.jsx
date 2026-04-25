@@ -51,6 +51,10 @@ const ROLE_OPTIONS = [
   "UI/UX Designer",
   "Product Manager",
   "Cloud Engineer",
+  "Cybersecurity Engineer",
+  "Mobile Developer",
+  "Blockchain Developer",
+  "Game Developer",
 ];
 
 // Detect role from job description text
@@ -161,7 +165,7 @@ function JobMatch({ analysisData }) {
             <div className="mt-2 flex flex-wrap gap-2">
               {comparison.missingSkills.length ? (
                 comparison.missingSkills.map((skill) => (
-                  <span key={skill} className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-xs font-medium text-rose-700">
+                  <span key={skill} className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[11px] font-medium text-rose-700">
                     {skill}
                   </span>
                 ))
@@ -192,13 +196,13 @@ function JobMatch({ analysisData }) {
 
         {/* Target role badge */}
         {targetRole && ROLE_OPTIONS.includes(targetRole) && (
-          <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1 text-xs font-medium text-sky-700">
+          <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-2.5 py-1 text-[11px] font-medium text-sky-700">
             🎯 Target Role: {targetRole}
           </div>
         )}
 
         {/* Role selector */}
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-1.5">
           {/* Primary: target role first */}
           {targetRole && ROLE_OPTIONS.includes(targetRole) && (
             <button
@@ -206,8 +210,8 @@ function JobMatch({ analysisData }) {
               onClick={() => setSelectedRole(targetRole)}
               className={
                 selectedRole === targetRole
-                  ? "rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white ring-2 ring-blue-400 ring-offset-1"
-                  : "rounded-full border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-medium text-blue-700"
+                  ? "rounded-full bg-blue-600 px-2.5 py-1 text-[11px] font-medium text-white ring-2 ring-blue-400 ring-offset-1"
+                  : "rounded-full border border-blue-300 bg-blue-50 px-2.5 py-1 text-[11px] font-medium text-blue-700"
               }
             >
               ⭐ {targetRole}
@@ -222,8 +226,8 @@ function JobMatch({ analysisData }) {
               onClick={() => setSelectedRole(role)}
               className={
                 selectedRole === role
-                  ? "rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white"
-                  : "rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700"
+                  ? "rounded-full bg-blue-600 px-2.5 py-1 text-[11px] font-medium text-white"
+                  : "rounded-full border border-slate-300 bg-white px-2.5 py-1 text-[11px] font-medium text-slate-700"
               }
             >
               {role}

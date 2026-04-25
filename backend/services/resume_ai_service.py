@@ -60,7 +60,6 @@ def build_analysis(resume_text: str, prompt: str, role: str = "") -> dict:
 
     if prompt.strip():
         role_text = f" for the role '{role}'" if role else ""
-        # Extract skills mentioned in job description/prompt
         jd_text = prompt.strip().lower()
         all_skills = [
             "python","javascript","react","node","sql","aws","docker","kubernetes",
@@ -68,7 +67,14 @@ def build_analysis(resume_text: str, prompt: str, role: str = "") -> dict:
             "typescript","mongodb","postgresql","redis","graphql","rest api",
             "git","linux","agile","scrum","figma","excel","tableau","power bi",
             "flask","django","fastapi","next.js","vue","angular","terraform","ci/cd",
-            "data analysis","nlp","computer vision","pandas","numpy","scikit-learn"
+            "data analysis","nlp","computer vision","pandas","numpy","scikit-learn",
+            "network security","ethical hacking","owasp","siem","cybersecurity",
+            "penetration testing","firewall","encryption","vulnerability","swift",
+            "kotlin","flutter","react native","firebase","unity","unreal engine",
+            "solidity","web3","ethereum","smart contracts","blender","c#","devops",
+            "kubernetes","terraform","ansible","jenkins","github actions","azure",
+            "gcp","power bi","tableau","user research","prototyping","figma",
+            "okrs","scrum","roadmap","product management","data visualization"
         ]
         jd_skills = [s for s in all_skills if s in jd_text]
         resume_lower = resume_text.lower()
@@ -87,6 +93,14 @@ def build_analysis(resume_text: str, prompt: str, role: str = "") -> dict:
             )
             if resume_missing:
                 suggestions[:0] = [f"Add '{s}' to your resume with a real project example." for s in resume_missing[:3]]
+            # Override role_result with JD-based scores
+            role_result = {
+                "match_score": match_pct,
+                "found_skills": resume_has,
+                "missing_skills": resume_missing,
+                "role": role,
+                "suggestions": suggestions
+            }
         else:
             analysis = (
                 f"You asked: '{prompt.strip()}'\n\n"

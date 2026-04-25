@@ -9,6 +9,9 @@ function App() {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
   const [analysisData, setAnalysisData] = useState(null);
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [savedPrompt, setSavedPrompt] = useState("");
+  const [savedRole, setSavedRole] = useState("");
   const [analysisLoading, setAnalysisLoading] = useState(false);
 
   useEffect(() => {
@@ -54,6 +57,12 @@ function App() {
     setAnalysisData,
     analysisLoading,
     setAnalysisLoading,
+    selectedFile,
+    setSelectedFile,
+    savedPrompt,
+    setSavedPrompt,
+    savedRole,
+    setSavedRole,
   };
 
   return (

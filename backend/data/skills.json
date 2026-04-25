@@ -38,5 +38,89 @@
     "SQL",
     "REST API",
     "Git"
+  ],
+  "Data Analyst": [
+    "SQL",
+    "Excel",
+    "Tableau",
+    "Power BI",
+    "Python",
+    "Data Visualization",
+    "Statistics"
+  ],
+  "DevOps Engineer": [
+    "Docker",
+    "Kubernetes",
+    "CI/CD",
+    "Linux",
+    "AWS",
+    "Terraform",
+    "Git"
+  ],
+  "ML Engineer": [
+    "Python",
+    "TensorFlow",
+    "PyTorch",
+    "Scikit-learn",
+    "MLOps",
+    "SQL",
+    "Statistics"
+  ],
+  "UI/UX Designer": [
+    "Figma",
+    "User Research",
+    "Prototyping",
+    "CSS",
+    "Accessibility",
+    "Design Systems"
+  ],
+  "Product Manager": [
+    "Agile",
+    "Scrum",
+    "Roadmapping",
+    "Analytics",
+    "User Stories",
+    "OKRs"
+  ],
+  "Cloud Engineer": [
+    "AWS",
+    "Azure",
+    "GCP",
+    "Terraform",
+    "Networking",
+    "Docker",
+    "Security"
+  ],
+  "Cybersecurity Engineer": [
+    "Network Security",
+    "Ethical Hacking",
+    "OWASP",
+    "Linux",
+    "Python",
+    "SIEM"
+  ],
+  "Mobile Developer": [
+    "React Native",
+    "Flutter",
+    "Swift",
+    "Kotlin",
+    "Firebase",
+    "REST API"
+  ],
+  "Blockchain Developer": [
+    "Solidity",
+    "Web3.js",
+    "Ethereum",
+    "Smart Contracts",
+    "Python",
+    "Git"
+  ],
+  "Game Developer": [
+    "Unity",
+    "Unreal Engine",
+    "C#",
+    "C++",
+    "Game Design",
+    "Blender"
   ]
 }
