@@ -162,12 +162,12 @@ function Sidebar({ isOpen, onClose, analysisData }) {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-80 flex-col border-r border-slate-200/70 bg-[linear-gradient(170deg,#fcfeff_0%,#f2f8fd_100%)] p-6 shadow-xl backdrop-blur-sm transition-transform duration-300 lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-40 flex w-72 flex-col border-r border-slate-200/70 bg-[linear-gradient(170deg,#fcfeff_0%,#f2f8fd_100%)] p-4 shadow-xl backdrop-blur-sm transition-transform duration-300 lg:translate-x-0 ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         {/* Logo */}
-        <div className="mb-8 flex items-center gap-3">
+        <div className="mb-4 flex items-center gap-3">
           <NavLink to="/dashboard" onClick={onClose}><img src="/cvisionary-logo.svg" alt="CVisionary" className="h-11 w-11 rounded-2xl object-cover shadow-md hover:opacity-80 transition" /></NavLink>
           <div>
             <p className="text-xs uppercase tracking-[0.2em] text-slate-500">AI Career Studio</p>
@@ -176,7 +176,7 @@ function Sidebar({ isOpen, onClose, analysisData }) {
         </div>
 
         {/* Nav */}
-        <nav className="space-y-1 overflow-y-auto">
+        <nav className="flex-1 space-y-0.5 overflow-hidden">
           {MENU_ITEMS.map((item) => (
             <NavLink key={item.to} to={item.to} end={item.end} onClick={onClose}>
               {({ isActive }) => (
@@ -197,7 +197,7 @@ function Sidebar({ isOpen, onClose, analysisData }) {
         </nav>
 
         {/* Weekly Target Card */}
-        <div className="mt-6 rounded-2xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50 p-4 shadow-sm">
+        <div className="mt-auto pt-3 rounded-2xl border border-cyan-100 bg-gradient-to-br from-white to-cyan-50 p-4 shadow-sm">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-[0.12em] text-sky-600">Weekly Target</p>
             <button
@@ -243,7 +243,7 @@ function Sidebar({ isOpen, onClose, analysisData }) {
           {total === 0 ? (
             <p className="mt-2 text-xs text-slate-500">Analyze your resume to get auto goals, or add one with +</p>
           ) : (
-            <ul className="mt-2 space-y-1.5 max-h-40 overflow-y-auto pr-1">
+            <ul className="mt-2 space-y-1.5 pr-1 max-h-28 overflow-y-auto">
               {goals.map(goal => (
                 <li key={goal.id} className="group flex items-start gap-2">
                   <button

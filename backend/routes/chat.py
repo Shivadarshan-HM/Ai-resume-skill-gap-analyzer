@@ -53,14 +53,14 @@ STRICT RULES:
 
     client = get_groq_client()
     if client is None:
-        return jsonify({{"error": "Chat service not configured."}}), 503
+        return jsonify({"error": "Chat service not configured."}), 503
 
     # Build messages with history
-    messages = [{{"role": "system", "content": system_prompt}}]
+    messages = [{"role": "system", "content": system_prompt}]
     for msg in history[-10:]:  # last 10 messages for context
         if msg.get("role") in ("user", "assistant"):
-            messages.append({{"role": msg["role"], "content": msg["content"]}})
-    messages.append({{"role": "user", "content": user_message}})
+            messages.append({"role": msg["role"], "content": msg["content"]})
+    messages.append({"role": "user", "content": user_message})
 
     try:
         response = client.chat.completions.create(
@@ -70,6 +70,6 @@ STRICT RULES:
             temperature=0.7
         )
         reply = response.choices[0].message.content.strip()
-        return jsonify({{"reply": reply}}), 200
+        return jsonify({"reply": reply}), 200
     except Exception as e:
-        return jsonify({{"error": "AI service unavailable."}}), 500
+        return jsonify({"error": "AI service unavailable."}), 500
