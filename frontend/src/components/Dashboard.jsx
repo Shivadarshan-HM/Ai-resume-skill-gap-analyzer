@@ -468,7 +468,10 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
                         <div className="absolute right-0 top-10 z-50 w-72 rounded-2xl border border-gray-200 bg-white shadow-xl">
                           <div className="flex items-center justify-between border-b border-gray-100 px-4 py-3">
                             <span className="text-sm font-semibold text-slate-800">Notifications</span>
-                            <button onClick={() => setShowNotif(false)} className="text-slate-400 hover:text-slate-600 text-xs">✕</button>
+                            <div className="flex items-center gap-2">
+                              {loadActivity().length > 0 && <button onClick={() => { localStorage.removeItem(getActivityKey()); setActivityLog([]); setShowNotif(false); }} className="text-xs font-medium text-rose-500 hover:text-rose-700 transition">Clear All</button>}
+                              <button onClick={() => setShowNotif(false)} className="text-slate-400 hover:text-slate-600 text-xs">✕</button>
+                            </div>
                           </div>
                           <div className="max-h-60 overflow-y-auto">
                             {loadActivity().length === 0 ? (
