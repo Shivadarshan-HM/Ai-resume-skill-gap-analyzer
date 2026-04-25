@@ -49,7 +49,8 @@ function ChatAssistant({ analysisData }) {
         },
         body: JSON.stringify({
           message: trimmed,
-          analysis_data: contextSummary
+          analysis_data: contextSummary,
+          history: messages.filter(m => m.role !== "assistant" || m.id !== 1).map(m => ({ role: m.role, content: m.content }))
         })
       });
 
