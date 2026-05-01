@@ -38,7 +38,7 @@ def create_app() -> Flask:
         app = Flask(__name__)
         app.config.from_object(Config)
 
-        CORS(app, origins=["*"], supports_credentials=True)
+        CORS(app, origins=["https://ai-resume-skill-gap-analyzer-eight.vercel.app"], supports_credentials=True)
         JWTManager(app)
         db.init_app(app)
         mail.init_app(app)
