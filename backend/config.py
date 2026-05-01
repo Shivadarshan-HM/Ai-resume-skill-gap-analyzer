@@ -6,7 +6,7 @@ DB_PATH = os.path.join(BASE_DIR, "database.db")  # ✅ simple & safe
 
 
 class Config:
-    DEBUG = os.getenv("FLASK_DEBUG", "true").lower() == "true"
+    DEBUG = os.getenv("FLASK_DEBUG", "false").lower() == "true"
     HOST = os.getenv("FLASK_HOST", "0.0.0.0")
     PORT = int(os.getenv("FLASK_PORT", "5000"))
     JSON_SORT_KEYS = False
@@ -18,10 +18,24 @@ class Config:
     )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-this-secret-in-production")
+    JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "")
     JWT_ACCESS_TOKEN_EXPIRES = timedelta(
         days=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES_DAYS", "7"))
     )
+    ALLOW_OTP_IN_RESPONSE = os.getenv("ALLOW_OTP_IN_RESPONSE", "false").lower() == "true"
+    CORS_ORIGINS = [
+        origin.strip()
+        for origin in os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:3000,https://ai-resume-skill-gap-analyzer-eight.vercel.app",
+        ).split(",")
+        if origin.strip()
+    ]
+    CORS_ORIGIN_REGEXES = [
+        r"^https://.*\.vercel\.app$",
+        r"^http://localhost:\d+$",
+        r"^http://127\.0\.0\.1:\d+$",
+    ]
 
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 587

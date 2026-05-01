@@ -1,6 +1,5 @@
 import random
 import string
-import os
 from datetime import datetime, timedelta
 from flask_mail import Mail, Message
 from flask import current_app
@@ -13,7 +12,15 @@ def generate_otp() -> str:
 
 
 def send_otp_email(email: str) -> bool:
-    """Email pe OTP bhejo aur database mein save karo."""
+    """Email pe OTP bhejo aur database mein save karo.
+
+    Returns:
+        dict: {
+            "success": bool,
+            "delivered": bool,
+            "otp": str | None
+        }
+    """
     from database import db
     from models.user import OTPRecord
 
@@ -33,13 +40,15 @@ def send_otp_email(email: str) -> bool:
     # Sender name — professional dikhega
     sender = ("CVisionay - AI Career Studio", mail_username or "no-reply@localhost")
 
+    allow_otp_in_response = bool(current_app.config.get("ALLOW_OTP_IN_RESPONSE", False))
+
     if not mail_username or not mail_password:
-        if current_app.debug:
+        if current_app.debug or allow_otp_in_response:
             print(f"[DEV OTP] {email}: {otp}")
-            return True
+            return {"success": True, "delivered": False, "otp": otp}
         OTPRecord.query.filter_by(email=email).delete()
         db.session.commit()
-        return False
+        return {"success": False, "delivered": False, "otp": None}
 
     try:
         msg = Message(
@@ -59,15 +68,15 @@ If you did not request this, please ignore this email.
 — CVisionay AI Career Studio Team"""
         )
         mail.send(msg)
-        return True
+        return {"success": True, "delivered": True, "otp": None}
     except Exception as e:
         print(f"Email send error: {e}")
-        if current_app.debug:
+        if current_app.debug or allow_otp_in_response:
             print(f"[DEV OTP] {email}: {otp}")
-            return True
+            return {"success": True, "delivered": False, "otp": otp}
         OTPRecord.query.filter_by(email=email).delete()
         db.session.commit()
-        return False
+        return {"success": False, "delivered": False, "otp": None}
 
 
 def verify_otp(email: str, otp: str) -> bool:

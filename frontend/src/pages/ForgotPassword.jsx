@@ -31,8 +31,9 @@ function ForgotPassword() {
 
     setLoading(true);
     try {
-      await forgotPasswordSendOtp({ email });
-      setSuccess("OTP sent to your email.");
+      const data = await forgotPasswordSendOtp({ email });
+      const otpHint = data?.otp ? ` OTP: ${data.otp}` : "";
+      setSuccess(`OTP sent to your email.${otpHint}`);
       setStep(2);
     } catch (err) {
       setError(err.message || "Failed to send OTP.");

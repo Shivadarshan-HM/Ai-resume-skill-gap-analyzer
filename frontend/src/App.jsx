@@ -5,6 +5,7 @@ import Landing from "./pages/Landing";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./components/Dashboard";
 import SplashScreen from "./components/SplashScreen";
+import { getCurrentUser } from "./services/api";
 
 function App() {
   const [user, setUser] = useState(null);
@@ -17,19 +18,34 @@ function App() {
   const [analysisLoading, setAnalysisLoading] = useState(false);
 
   useEffect(() => {
-    // Simply restore from localStorage — no backend call needed on refresh
-    const token = localStorage.getItem("token");
-    const savedUser = localStorage.getItem("user");
+    async function restoreSession() {
+      const token = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("user");
 
-    if (token && savedUser) {
+      if (!token || !savedUser) {
+        setChecking(false);
+        return;
+      }
+
       try {
-        setUser(JSON.parse(savedUser));
+        const parsedUser = JSON.parse(savedUser);
+        setUser(parsedUser);
+
+        const data = await getCurrentUser();
+        if (data?.user) {
+          setUser(data.user);
+          localStorage.setItem("user", JSON.stringify(data.user));
+        }
       } catch {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
+        setUser(null);
+      } finally {
+        setChecking(false);
       }
     }
-    setChecking(false);
+
+    restoreSession();
   }, []);
 
   function handleLoginSuccess(userData) {

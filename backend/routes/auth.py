@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, decode_token
 from database import db
 from models.user import User, UserProfile
 from services.email_service import send_otp_email, verify_otp
@@ -20,11 +20,18 @@ def send_otp():
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already registered."}), 409
 
-    success = send_otp_email(email)
-    if not success:
+    otp_result = send_otp_email(email)
+    if not otp_result.get("success"):
         return jsonify({"error": "Failed to send OTP. Check email config."}), 500
 
-    return jsonify({"message": "OTP sent successfully."}), 200
+    response = {"message": "OTP sent successfully."}
+    if not otp_result.get("delivered"):
+        response["message"] = "OTP generated successfully."
+    if otp_result.get("otp"):
+        response["otp"] = otp_result["otp"]
+        response["warning"] = "OTP fallback mode is enabled. Disable in production."
+
+    return jsonify(response), 200
 
 
 @legacy_auth_bp.post("/register")
@@ -104,11 +111,18 @@ def forgot_send_otp():
     if not user:
         return jsonify({"error": "No account found with this email."}), 404
 
-    success = send_otp_email(email)
-    if not success:
+    otp_result = send_otp_email(email)
+    if not otp_result.get("success"):
         return jsonify({"error": "Failed to send OTP. Check email config."}), 500
 
-    return jsonify({"message": "OTP sent to your email."}), 200
+    response = {"message": "OTP sent to your email."}
+    if not otp_result.get("delivered"):
+        response["message"] = "OTP generated successfully."
+    if otp_result.get("otp"):
+        response["otp"] = otp_result["otp"]
+        response["warning"] = "OTP fallback mode is enabled. Disable in production."
+
+    return jsonify(response), 200
 
 
 @auth_bp.post("/forgot-password/verify-otp")
@@ -142,6 +156,18 @@ def reset_password():
 
     if len(new_password) < 6:
         return jsonify({"error": "Password must be at least 6 characters."}), 400
+
+    try:
+        decoded = decode_token(reset_token)
+        token_identity = decoded.get("sub", "")
+        if not isinstance(token_identity, str) or not token_identity.startswith("reset:"):
+            return jsonify({"error": "Invalid reset token."}), 401
+
+        token_email = token_identity.split("reset:", 1)[1].strip().lower()
+        if token_email != email:
+            return jsonify({"error": "Reset token does not match email."}), 401
+    except Exception:
+        return jsonify({"error": "Invalid or expired reset token."}), 401
 
     user = User.query.filter_by(email=email).first()
     if not user:

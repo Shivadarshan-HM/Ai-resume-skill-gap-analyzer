@@ -6,22 +6,59 @@ function getToken() {
   return localStorage.getItem("token");
 }
 
+async function parseResponse(res, fallbackError) {
+  let data = null;
+
+  try {
+    data = await res.json();
+  } catch {
+    data = null;
+  }
+
+  if (!res.ok) {
+    throw new Error(data?.error || fallbackError);
+  }
+
+  if (!data) {
+    throw new Error("Invalid server response.");
+  }
+
+  return data;
+}
+
+function toFriendlyNetworkError(err) {
+  const msg = (err && err.message ? err.message : "").toLowerCase();
+  if (msg.includes("failed to fetch") || msg.includes("networkerror")) {
+    return "Unable to reach server. Check API URL, backend health, and CORS origins.";
+  }
+  return err?.message || "Request failed.";
+}
+
+async function safeFetch(url, options, fallbackError) {
+  try {
+    const res = await fetch(url, options);
+    return await parseResponse(res, fallbackError);
+  } catch (err) {
+    throw new Error(toFriendlyNetworkError(err));
+  }
+}
+
 // ==================== ANALYZE ====================
 
 // Text analyze
 export async function analyzeResume({ resume, role }) {
-  const res = await fetch(`${BASE_URL}/analyze`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${getToken()}`,
+  return safeFetch(
+    `${BASE_URL}/analyze`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: JSON.stringify({ resume, role }),
     },
-    body: JSON.stringify({ resume, role }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Analysis failed.");
-  return data;
+    "Analysis failed."
+  );
 }
 
 // File upload analyze
@@ -31,119 +68,144 @@ export async function analyzeResumeUpload({ file, role, prompt }) {
   formData.append("role", role);
   if (prompt) formData.append("prompt", prompt);
 
-  const res = await fetch(`${BASE_URL}/analyze-resume`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getToken()}`,
+  return safeFetch(
+    `${BASE_URL}/analyze-resume`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+      body: formData,
     },
-    body: formData,
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Upload analysis failed.");
-  return data;
+    "Upload analysis failed."
+  );
 }
 
 // ==================== AUTH ====================
 
 // Register
 export async function register({ fullName, email, password, otp }) {
-  const res = await fetch(`${BASE_URL}/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      full_name: fullName,
-      email,
-      password,
-      otp,
-    }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Registration failed.");
-  return data;
+  return safeFetch(
+    `${BASE_URL}/auth/register`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        full_name: fullName,
+        email,
+        password,
+        otp,
+      }),
+    },
+    "Registration failed."
+  );
 }
 
 // Send OTP (signup)
 export async function sendOtp({ email }) {
-  const res = await fetch(`${BASE_URL}/auth/send-otp`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "OTP send failed.");
-  return data;
+  return safeFetch(
+    `${BASE_URL}/auth/send-otp`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    },
+    "OTP send failed."
+  );
 }
 
 // Login
 export async function login({ email, password }) {
-  const res = await fetch(`${BASE_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Login failed.");
-  return data;
+  return safeFetch(
+    `${BASE_URL}/auth/login`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    },
+    "Login failed."
+  );
 }
 
 // Verify OTP (signup)
 export async function verifyOtp({ email, otp }) {
-  const res = await fetch(`${BASE_URL}/auth/verify-otp`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, otp }),
-  });
+  return safeFetch(
+    `${BASE_URL}/auth/verify-otp`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    },
+    "OTP verification failed."
+  );
+}
 
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "OTP verification failed.");
-  return data;
+export async function googleAuth(payload) {
+  return safeFetch(
+    `${BASE_URL}/auth/google`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    },
+    "Google login failed."
+  );
+}
+
+export async function getCurrentUser() {
+  return safeFetch(
+    `${BASE_URL}/auth/me`,
+    {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${getToken()}`,
+      },
+    },
+    "Session validation failed."
+  );
 }
 
 // ==================== FORGOT PASSWORD ====================
 
 // Send OTP
 export async function forgotPasswordSendOtp({ email }) {
-  const res = await fetch(`${BASE_URL}/auth/forgot-password/send-otp`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Failed to send OTP.");
-  return data;
+  return safeFetch(
+    `${BASE_URL}/auth/forgot-password/send-otp`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    },
+    "Failed to send OTP."
+  );
 }
 
 // Verify OTP
 export async function forgotPasswordVerifyOtp({ email, otp }) {
-  const res = await fetch(`${BASE_URL}/auth/forgot-password/verify-otp`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, otp }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "OTP verification failed.");
-  return data;
+  return safeFetch(
+    `${BASE_URL}/auth/forgot-password/verify-otp`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, otp }),
+    },
+    "OTP verification failed."
+  );
 }
 
 // Reset Password
 export async function resetPassword({ email, resetToken, newPassword }) {
-  const res = await fetch(`${BASE_URL}/auth/forgot-password/reset`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      email,
-      reset_token: resetToken,
-      new_password: newPassword,
-    }),
-  });
-
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || "Password reset failed.");
-  return data;
+  return safeFetch(
+    `${BASE_URL}/auth/forgot-password/reset`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        reset_token: resetToken,
+        new_password: newPassword,
+      }),
+    },
+    "Password reset failed."
+  );
 }

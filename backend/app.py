@@ -1,6 +1,7 @@
 import traceback
 print("🚀 APP STARTING...")
 
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -38,7 +39,18 @@ def create_app() -> Flask:
         app = Flask(__name__)
         app.config.from_object(Config)
 
-        CORS(app, origins=["https://ai-resume-skill-gap-analyzer-eight.vercel.app"], supports_credentials=True)
+        if not app.config.get("JWT_SECRET_KEY"):
+            raise RuntimeError("JWT_SECRET_KEY is required.")
+
+        allowed_origins = app.config.get("CORS_ORIGINS", [])
+        origin_regexes = app.config.get("CORS_ORIGIN_REGEXES", [])
+        CORS(
+            app,
+            origins=allowed_origins + origin_regexes,
+            supports_credentials=True,
+            allow_headers=["Content-Type", "Authorization"],
+            methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        )
         JWTManager(app)
         db.init_app(app)
         mail.init_app(app)
@@ -76,6 +88,5 @@ app = create_app()
 
 
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=True)
+    app.run(host="0.0.0.0", port=port, debug=Config.DEBUG)

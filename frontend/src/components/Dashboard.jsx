@@ -26,7 +26,9 @@ const ROLE_OPTIONS = [
   "Blockchain Developer",
   "Game Developer",
 ];
-const API_URL = process.env.REACT_APP_API_URL || "http://127.0.0.1:5000";
+const API_URL =
+  process.env.REACT_APP_API_URL ||
+  "https://ai-resume-skill-gap-analyzer-axsq.onrender.com";
 
 const ROUTE_LABELS = {
   "/dashboard": "Overview",

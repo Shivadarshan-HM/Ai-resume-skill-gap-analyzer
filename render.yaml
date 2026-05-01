@@ -1,0 +1,39 @@
+services:
+  - type: web
+    name: ai-resume-skill-gap-analyzer-api
+    env: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn app:app
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: FLASK_DEBUG
+        value: false
+      - key: JWT_ACCESS_TOKEN_EXPIRES_DAYS
+        value: 7
+      - key: ALLOW_OTP_IN_RESPONSE
+        value: false
+      - key: CORS_ORIGINS
+        value: https://ai-resume-skill-gap-analyzer-eight.vercel.app,http://localhost:3000
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_EMAIL
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_DEFAULT_SENDER
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: ai-resume-skill-gap-analyzer-db
+          property: connectionString
+
+databases:
+  - name: ai-resume-skill-gap-analyzer-db
+    databaseName: cvisionary
+    user: cvisionary
