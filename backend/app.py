@@ -14,7 +14,7 @@ from database import db
 from services.email_service import mail
 from routes.analyze import analyze_bp
 from routes.auth import auth_bp, legacy_auth_bp
-from routes.chat import chat_bp
+# from routes.chat import chat_bp   # ❌ disabled for now
 
 
 def _ensure_schema_compatibility() -> None:
@@ -34,33 +34,48 @@ def _ensure_schema_compatibility() -> None:
 
 
 def create_app() -> Flask:
-    app = Flask(__name__)
-    app.config.from_object(Config)
+    try:
+        app = Flask(__name__)
+        app.config.from_object(Config)
 
-    CORS(app, origins=["*"], supports_credentials=True)
-    JWTManager(app)
-    db.init_app(app)
-    mail.init_app(app)
+        CORS(app, origins=["*"], supports_credentials=True)
+        JWTManager(app)
+        db.init_app(app)
+        mail.init_app(app)
 
-    app.register_blueprint(auth_bp)
-    app.register_blueprint(legacy_auth_bp)
-    app.register_blueprint(analyze_bp)
-    app.register_blueprint(chat_bp)
+        # Register routes
+        app.register_blueprint(auth_bp)
+        app.register_blueprint(legacy_auth_bp)
+        app.register_blueprint(analyze_bp)
+        # app.register_blueprint(chat_bp)  # ❌ disabled
 
-    with app.app_context():
-        db.create_all()
-        _ensure_schema_compatibility()
+        # DB setup
+        with app.app_context():
+            try:
+                db.create_all()
+                print("✅ DB initialized")
+                _ensure_schema_compatibility()
+            except Exception as e:
+                print("❌ DB ERROR:", e)
+                traceback.print_exc()
 
-    @app.get("/")
-    def health_check():
-        return {"status": "ok", "service": "CVisionary API"}
+        @app.get("/")
+        def health_check():
+            return {"status": "ok", "service": "CVisionary API"}
 
-    return app
+        return app
+
+    except Exception as e:
+        print("❌ APP CREATION FAILED:", e)
+        traceback.print_exc()
+        raise
 
 
-# 🔥 IMPORTANT FIX (this was missing)
+# 🔥 REQUIRED for gunicorn
 app = create_app()
 
 
 if __name__ == "__main__":
-    app.run(host=Config.HOST, port=Config.PORT, debug=Config.DEBUG)
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
