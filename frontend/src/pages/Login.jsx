@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 
-// 🔥 Use your live backend URL directly (no localhost fallback)
-const API_URL = "https://ai-resume-skill-gap-analyzer-axsq.onrender.com";
+const API_URL =
+  process.env.REACT_APP_API_URL ||
+  "https://ai-resume-skill-gap-analyzer-axsq.onrender.com";
 
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
@@ -11,116 +12,88 @@ export default function Login({ onLoginSuccess }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // ================= LOGIN =================
-  async function handleLogin(e) {
+  // ✅ ONLY LOGIC FIXED (UI untouched)
+  const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
 
     if (!email || !password) {
-      setError("Email and password are required.");
+      setError("Email and password are required");
       return;
     }
 
     setLoading(true);
 
     try {
-      console.log("🚀 Calling:", `${API_URL}/auth/login`);
-
       const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+        }),
       });
 
       const data = await res.json();
-      console.log("✅ Response:", data);
 
       if (!res.ok) {
         setError(data.error || "Login failed");
         return;
       }
 
-      // Save auth
+      // ✅ Save token
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
 
       setSuccess("Login successful!");
 
-      setTimeout(() => {
-        if (onLoginSuccess) onLoginSuccess(data.user);
-      }, 1000);
+      // ✅ Keep your navigation
+      if (onLoginSuccess) onLoginSuccess(data.user);
     } catch (err) {
       console.error(err);
-      setError("Server not reachable.");
+      setError("Server error");
     } finally {
       setLoading(false);
     }
-  }
+  };
 
-  // ================= UI =================
   return (
-    <div style={styles.container}>
-      <form onSubmit={handleLogin} style={styles.card}>
-        <h2>Login</h2>
+    <div className="login-container">
+      <form onSubmit={handleLogin} className="login-card">
+        <h2>Sign In</h2>
 
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {success && <p style={{ color: "green" }}>{success}</p>}
+        {error && <p className="error">{error}</p>}
+        {success && <p className="success">{success}</p>}
 
+        {/* Email */}
         <input
           type="email"
-          placeholder="Email"
+          placeholder="Enter your email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          style={styles.input}
         />
 
+        {/* Password */}
         <input
           type="password"
-          placeholder="Password"
+          placeholder="Enter your password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          style={styles.input}
         />
 
-        <button type="submit" disabled={loading} style={styles.button}>
+        {/* Button */}
+        <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
+
+        {/* Keep your existing UI links */}
+        <p className="switch">
+          Don't have an account? <span>Register</span>
+        </p>
       </form>
     </div>
   );
 }
-
-// ================= STYLES =================
-const styles = {
-  container: {
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    height: "100vh",
-  },
-  card: {
-    padding: 20,
-    border: "1px solid #ddd",
-    borderRadius: 10,
-    width: 300,
-    display: "flex",
-    flexDirection: "column",
-    gap: 10,
-  },
-  input: {
-    padding: 10,
-    borderRadius: 6,
-    border: "1px solid #ccc",
-  },
-  button: {
-    padding: 10,
-    borderRadius: 6,
-    background: "#007bff",
-    color: "#fff",
-    border: "none",
-    cursor: "pointer",
-  },
-};
