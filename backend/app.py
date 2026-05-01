@@ -1,3 +1,6 @@
+import traceback
+print("🚀 APP STARTING...")
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -15,7 +18,6 @@ from routes.chat import chat_bp
 
 
 def _ensure_schema_compatibility() -> None:
-    """Backfill missing SQLite columns for older local databases."""
     if db.engine.url.get_backend_name() != "sqlite":
         return
 
@@ -35,7 +37,7 @@ def create_app() -> Flask:
     app = Flask(__name__)
     app.config.from_object(Config)
 
-    CORS(app, origins=["http://localhost:3000", "http://localhost:3001"], supports_credentials=True, allow_headers=["Content-Type", "Authorization"], methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+    CORS(app, origins=["*"], supports_credentials=True)
     JWTManager(app)
     db.init_app(app)
     mail.init_app(app)
@@ -56,6 +58,9 @@ def create_app() -> Flask:
     return app
 
 
+# 🔥 IMPORTANT FIX (this was missing)
+app = create_app()
+
+
 if __name__ == "__main__":
-    flask_app = create_app()
-    flask_app.run(host=Config.HOST, port=Config.PORT, debug=Config.DEBUG)
+    app.run(host=Config.HOST, port=Config.PORT, debug=Config.DEBUG)
