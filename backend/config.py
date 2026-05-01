@@ -1,19 +1,27 @@
 import os
 from datetime import timedelta
 
+BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+DB_PATH = os.path.join(BASE_DIR, "database.db")  # ✅ simple & safe
+
 
 class Config:
     DEBUG = os.getenv("FLASK_DEBUG", "true").lower() == "true"
-    HOST = os.getenv("FLASK_HOST", "127.0.0.1")
+    HOST = os.getenv("FLASK_HOST", "0.0.0.0")
     PORT = int(os.getenv("FLASK_PORT", "5000"))
     JSON_SORT_KEYS = False
 
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", f"sqlite:///{os.path.join(os.path.dirname(__file__), 'instance', 'users.db')}")
+    # ✅ FIXED DATABASE PATH
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        "DATABASE_URL",
+        f"sqlite:///{DB_PATH}"
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "change-this-secret-in-production")
-    # Keep users logged in longer so authenticated features like chat stay usable.
-    JWT_ACCESS_TOKEN_EXPIRES = timedelta(days=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES_DAYS", "7")))
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(
+        days=int(os.getenv("JWT_ACCESS_TOKEN_EXPIRES_DAYS", "7"))
+    )
 
     MAIL_SERVER = "smtp.gmail.com"
     MAIL_PORT = 587
