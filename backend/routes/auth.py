@@ -5,8 +5,10 @@ from models.user import User, UserProfile
 from services.email_service import send_otp_email, verify_otp
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
+legacy_auth_bp = Blueprint("legacy_auth", __name__)
 
 
+@legacy_auth_bp.post("/send-otp")
 @auth_bp.post("/send-otp")
 def send_otp():
     payload = request.get_json(silent=True) or {}
@@ -25,10 +27,11 @@ def send_otp():
     return jsonify({"message": "OTP sent successfully."}), 200
 
 
+@legacy_auth_bp.post("/register")
 @auth_bp.post("/register")
 def register():
     payload = request.get_json(silent=True) or {}
-    full_name = payload.get("full_name", "").strip()
+    full_name = payload.get("full_name", payload.get("fullName", "")).strip()
     email = payload.get("email", "").strip().lower()
     password = payload.get("password", "")
     otp = payload.get("otp", "").strip()
@@ -54,6 +57,7 @@ def register():
     return jsonify({"message": "Account created successfully.", "token": token, "user": user.to_dict()}), 201
 
 
+@legacy_auth_bp.post("/login")
 @auth_bp.post("/login")
 def login():
     payload = request.get_json(silent=True) or {}
@@ -69,6 +73,22 @@ def login():
 
     token = create_access_token(identity=str(user.id))
     return jsonify({"message": "Login successful.", "token": token, "user": user.to_dict()}), 200
+
+
+@legacy_auth_bp.post("/verify-otp")
+@auth_bp.post("/verify-otp")
+def verify_signup_otp():
+    payload = request.get_json(silent=True) or {}
+    email = payload.get("email", "").strip().lower()
+    otp = payload.get("otp", "").strip()
+
+    if not email or not otp:
+        return jsonify({"error": "Email and OTP are required."}), 400
+
+    if not verify_otp(email, otp):
+        return jsonify({"error": "Invalid or expired OTP."}), 400
+
+    return jsonify({"message": "OTP verified successfully."}), 200
 
 
 @auth_bp.post("/forgot-password/send-otp")

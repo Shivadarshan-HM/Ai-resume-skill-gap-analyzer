@@ -4,10 +4,12 @@ import Login from "./pages/Login";
 import Landing from "./pages/Landing";
 import ForgotPassword from "./pages/ForgotPassword";
 import Dashboard from "./components/Dashboard";
+import SplashScreen from "./components/SplashScreen";
 
 function App() {
   const [user, setUser] = useState(null);
   const [checking, setChecking] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
   const [analysisData, setAnalysisData] = useState(null);
   const [selectedFile, setSelectedFile] = useState(null);
   const [savedPrompt, setSavedPrompt] = useState("");
@@ -48,6 +50,10 @@ function App() {
   }
 
   if (checking) return null;
+
+  if (!user && showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
 
   const dashboardProps = {
     user,

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { logActivity } from "./Dashboard";
 import { motion } from "framer-motion";
 import { analyzeResumeUpload } from "../services/api";
+import Loader from "./Loader";
 
 function toSuggestionText(item) {
   if (typeof item === "string") return item;
@@ -172,12 +173,7 @@ function ResumeAnalyzer({ roles, onAnalysisComplete, onLoadingChange, analysisDa
         )}
       </form>
 
-      {loading && (
-        <div className="mt-4 flex items-center gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700" role="status" aria-live="polite">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-200 border-t-blue-600" />
-          Generating AI analysis...
-        </div>
-      )}
+      {loading && <Loader fullScreen />}
 
       {analysisOutput && (
         <motion.div

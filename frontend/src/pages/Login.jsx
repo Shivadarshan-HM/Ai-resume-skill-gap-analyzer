@@ -190,7 +190,7 @@ function Login({ onLoginSuccess }) {
         <div className="relative flex flex-col bg-[linear-gradient(180deg,#ffffff_0%,#f8fbff_100%)] p-7 sm:p-10 lg:p-12">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3 rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm">
-              <img src="/cvisionary-logo.svg" alt="CVisionary" className="h-8 w-8 rounded-full object-cover" />
+              <img src="/logo.png" alt="CVisionary" className="h-8 w-8 rounded-full object-cover" />
               <span className="text-sm font-semibold text-slate-700">CVisionary</span>
             </div>
             <Link to="/" className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow-sm transition hover:border-sky-200 hover:text-sky-700">Back to Home</Link>

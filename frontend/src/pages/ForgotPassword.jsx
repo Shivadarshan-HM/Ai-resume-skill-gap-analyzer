@@ -106,7 +106,7 @@ function ForgotPassword() {
       >
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <img src="/cvisionary-logo.svg" alt="CVisionary" className="h-10 w-10 rounded-2xl object-cover shadow-sm" />
+            <img src="/logo.png" alt="CVisionary" className="h-10 w-10 rounded-2xl object-cover shadow-sm" />
             <h1 className="text-3xl font-semibold text-slate-900">Recover Password</h1>
           </div>
           <Link to="/login?mode=signin" className="text-sm font-medium text-sky-700 underline underline-offset-2">

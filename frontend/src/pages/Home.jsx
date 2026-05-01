@@ -46,7 +46,7 @@ function Home() {
       <section className="hero">
         <p className="tag">Hackathon-Ready Project</p>
         <div className="mx-auto flex w-fit items-center gap-3 rounded-full border border-slate-200 bg-white/90 px-4 py-2 shadow-sm">
-          <img src="/cvisionary-logo.svg" alt="CVisionary logo" className="h-10 w-10 rounded-full object-cover" />
+          <img src="/logo.png" alt="CVisionary logo" className="h-10 w-10 rounded-full object-cover" />
           <span className="text-sm font-semibold tracking-[0.16em] text-slate-700">CVisionary</span>
         </div>
         <h1>CVisionary</h1>
