@@ -3,6 +3,8 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 
+load_dotenv()
+
 from config import Config
 from database import db
 from services.email_service import mail
@@ -10,11 +12,6 @@ from services.email_service import mail
 from routes.auth import auth_bp, legacy_auth_bp
 from routes.analyze import analyze_bp
 from routes.chat import chat_bp
-
-import os
-
-load_dotenv()
-
 
 def create_app():
     app = Flask(__name__)

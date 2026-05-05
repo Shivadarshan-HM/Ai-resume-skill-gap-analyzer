@@ -49,7 +49,8 @@ def register():
     if len(password) < 6:
         return jsonify({"error": "Password must be at least 6 characters."}), 400
 
-    if not verify_otp(email, otp):
+    otp_valid = verify_otp(email, otp)
+    if not otp_valid:
         return jsonify({"error": "Invalid or expired OTP."}), 400
 
     if User.query.filter_by(email=email).first():
@@ -75,7 +76,8 @@ def login():
         return jsonify({"error": "Email and password are required."}), 400
 
     user = User.query.filter_by(email=email).first()
-    if not user or not user.check_password(password):
+    password_ok = bool(user and user.check_password(password))
+    if not user or not password_ok:
         return jsonify({"error": "Invalid email or password."}), 401
 
     token = create_access_token(identity=str(user.id))
@@ -92,7 +94,8 @@ def verify_signup_otp():
     if not email or not otp:
         return jsonify({"error": "Email and OTP are required."}), 400
 
-    if not verify_otp(email, otp):
+    otp_valid = verify_otp(email, otp)
+    if not otp_valid:
         return jsonify({"error": "Invalid or expired OTP."}), 400
 
     return jsonify({"message": "OTP verified successfully."}), 200
