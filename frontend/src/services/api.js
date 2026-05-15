@@ -7,13 +7,12 @@ import {
   signupWithEmail,
 } from "../firebase/auth";
 import {
-  addChatMessage,
   createOrUpdateUserProfile,
-  createResumeAnalysis,
   getChatMessages,
   getLatestResumeAnalysis,
   getUserProfile,
 } from "../firebase/firestore";
+import { auth } from "../firebase/config";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { storage } from "../firebase/config";
 
@@ -73,14 +72,20 @@ async function requireUser() {
 export async function analyzeResume({ resume, role }) {
   try {
     const user = await requireUser();
-    const analysis = await createResumeAnalysis(user.uid, {
-      resumeText: resume,
-      role,
-      prompt: "",
-      fileName: "text-input",
-    });
+    const token = await auth.currentUser.getIdToken();
 
-    return analysis;
+    const resp = await fetch("/api/analyze", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ resumeText: resume, role, prompt: "", fileName: "text-input" }),
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error(`Analyze failed: ${txt}`);
+    }
+    return await resp.json();
   } catch (err) {
     throw new Error(toUserMessage(err, "Analysis failed."));
   }
@@ -89,32 +94,23 @@ export async function analyzeResume({ resume, role }) {
 export async function analyzeResumeUpload({ file, role, prompt }) {
   try {
     const user = await requireUser();
-    let resumeText = "";
-    let storagePath = null;
+    const token = await auth.currentUser.getIdToken();
 
-    if (file?.type?.startsWith("text/") || file?.name?.toLowerCase().endsWith(".txt")) {
-      resumeText = await file.text();
-    }
+    const form = new FormData();
+    form.append('role', role || '');
+    form.append('prompt', prompt || '');
+    if (file) form.append('file', file, file.name);
 
-    // If file is a binary (PDF/DOCX) upload it to Firebase Storage so the
-    // backend AI processing can fetch and extract text server-side.
-    if (file && !(file?.type?.startsWith("text/") || file?.name?.toLowerCase().endsWith(".txt"))) {
-      const storageRef = ref(storage, `uploads/${user.uid}/${Date.now()}_${file.name}`);
-      const arrayBuffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      await uploadBytes(storageRef, bytes, { contentType: file.type });
-      storagePath = storageRef.fullPath;
-    }
-
-    const analysis = await createResumeAnalysis(user.uid, {
-      resumeText,
-      role,
-      prompt,
-      fileName: file?.name || "resume-file",
-      storagePath,
+    const resp = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: form,
     });
-
-    return analysis;
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error(`Upload analysis failed: ${txt}`);
+    }
+    return await resp.json();
   } catch (err) {
     throw new Error(toUserMessage(err, "Upload analysis failed."));
   }
@@ -292,12 +288,25 @@ function buildChatReply({ message, analysisData }) {
 export async function chatWithAssistant({ message, analysisData }) {
   try {
     const user = await requireUser();
-    await addChatMessage(user.uid, { role: "user", content: message });
+    const token = await auth.currentUser.getIdToken();
 
-    const reply = buildChatReply({ message, analysisData });
-    await addChatMessage(user.uid, { role: "assistant", content: reply });
+    const body = {
+      message,
+    };
 
-    return { reply };
+    const resp = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(body),
+    });
+    if (!resp.ok) {
+      const txt = await resp.text();
+      throw new Error(`Chat failed: ${txt}`);
+    }
+    return await resp.json();
   } catch (err) {
     throw new Error(toUserMessage(err, "Unable to process chat message."));
   }

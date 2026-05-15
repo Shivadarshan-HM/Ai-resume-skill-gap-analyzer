@@ -1,0 +1,16 @@
+{
+  "name": "ai-resume-skill-gap-analyzer-root",
+  "private": true,
+  "engines": {
+    "node": "18.x"
+  },
+  "dependencies": {
+    "firebase-admin": "^11.10.0",
+    "pdf-parse": "^1.1.1",
+    "formidable": "^3.7.0",
+    "node-fetch": "^2.6.7"
+  },
+  "scripts": {
+    "vercel-build": "cd frontend && npm install && npm run build"
+  }
+}
