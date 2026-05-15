@@ -1,211 +1,336 @@
-const BASE_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://ai-resume-skill-gap-analyzer-axsq.onrender.com";
+import {
+  getCurrentAuthUser,
+  loginWithEmail,
+  loginWithGoogle,
+  logoutUser,
+  requestPasswordReset,
+  signupWithEmail,
+} from "../firebase/auth";
+import {
+  addChatMessage,
+  createOrUpdateUserProfile,
+  createResumeAnalysis,
+  getChatMessages,
+  getLatestResumeAnalysis,
+  getUserProfile,
+} from "../firebase/firestore";
 
-function getToken() {
-  return localStorage.getItem("token");
+function toUserMessage(err, fallback) {
+  return err?.message || fallback;
 }
 
-async function parseResponse(res, fallbackError) {
-  let data = null;
+function createOtp(email) {
+  const otp = String(Math.floor(100000 + Math.random() * 900000));
+  const key = `signup_otp_${email.toLowerCase()}`;
+  localStorage.setItem(key, JSON.stringify({ otp, expiresAt: Date.now() + 10 * 60 * 1000 }));
+  return otp;
+}
+
+function validateOtp(email, otp) {
+  const key = `signup_otp_${email.toLowerCase()}`;
+  const raw = localStorage.getItem(key);
+  if (!raw) return false;
 
   try {
-    data = await res.json();
+    const parsed = JSON.parse(raw);
+    const isValid = parsed.otp === otp && Date.now() <= parsed.expiresAt;
+    if (isValid) {
+      localStorage.removeItem(key);
+    }
+    return isValid;
   } catch {
-    data = null;
+    return false;
   }
-
-  if (!res.ok) {
-    throw new Error(data?.error || fallbackError);
-  }
-
-  if (!data) {
-    throw new Error("Invalid server response.");
-  }
-
-  return data;
 }
 
-function toFriendlyNetworkError(err) {
-  const msg = (err && err.message ? err.message : "").toLowerCase();
-  if (msg.includes("failed to fetch") || msg.includes("networkerror")) {
-    return "Unable to reach server. Check API URL, backend health, and CORS origins.";
-  }
-  return err?.message || "Request failed.";
+async function ensureMergedUser(user) {
+  const profile = await getUserProfile(user.uid);
+
+  return {
+    ...user,
+    full_name: profile?.full_name || user.full_name || "",
+    bio: profile?.bio || "",
+    phone: profile?.phone || "",
+    location: profile?.location || "",
+    linkedin_url: profile?.linkedin_url || "",
+    github_url: profile?.github_url || "",
+    portfolio_url: profile?.portfolio_url || "",
+  };
 }
 
-async function safeFetch(url, options, fallbackError) {
-  try {
-    const res = await fetch(url, options);
-    return await parseResponse(res, fallbackError);
-  } catch (err) {
-    throw new Error(toFriendlyNetworkError(err));
+async function requireUser() {
+  const user = await getCurrentAuthUser();
+  if (!user) {
+    throw new Error("Please login to continue.");
   }
+  return user;
 }
 
 // ==================== ANALYZE ====================
 
-// Text analyze
 export async function analyzeResume({ resume, role }) {
-  return safeFetch(
-    `${BASE_URL}/analyze`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${getToken()}`,
-      },
-      body: JSON.stringify({ resume, role }),
-    },
-    "Analysis failed."
-  );
+  try {
+    const user = await requireUser();
+    const analysis = await createResumeAnalysis(user.uid, {
+      resumeText: resume,
+      role,
+      prompt: "",
+      fileName: "text-input",
+    });
+
+    return analysis;
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Analysis failed."));
+  }
 }
 
-// File upload analyze
 export async function analyzeResumeUpload({ file, role, prompt }) {
-  const formData = new FormData();
-  formData.append("file", file);
-  formData.append("role", role);
-  if (prompt) formData.append("prompt", prompt);
+  try {
+    const user = await requireUser();
+    let resumeText = "";
 
-  return safeFetch(
-    `${BASE_URL}/analyze-resume`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-      body: formData,
-    },
-    "Upload analysis failed."
-  );
+    if (file?.type?.startsWith("text/") || file?.name?.toLowerCase().endsWith(".txt")) {
+      resumeText = await file.text();
+    }
+
+    const analysis = await createResumeAnalysis(user.uid, {
+      resumeText,
+      role,
+      prompt,
+      fileName: file?.name || "resume-file",
+    });
+
+    return analysis;
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Upload analysis failed."));
+  }
+}
+
+export async function getLatestAnalysis() {
+  try {
+    const user = await requireUser();
+    return getLatestResumeAnalysis(user.uid);
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Unable to load analysis."));
+  }
 }
 
 // ==================== AUTH ====================
 
-// Register
-export async function register({ fullName, email, password, otp }) {
-  return safeFetch(
-    `${BASE_URL}/auth/register`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        full_name: fullName,
-        email,
-        password,
-        otp,
-      }),
-    },
-    "Registration failed."
-  );
-}
-
-// Send OTP (signup)
 export async function sendOtp({ email }) {
-  return safeFetch(
-    `${BASE_URL}/auth/send-otp`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    },
-    "OTP send failed."
-  );
+  if (!email?.trim()) {
+    throw new Error("Email is required.");
+  }
+
+  const otp = createOtp(email);
+  return {
+    message: `OTP sent to ${email}`,
+    otp,
+  };
 }
 
-// Login
-export async function login({ email, password }) {
-  return safeFetch(
-    `${BASE_URL}/auth/login`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    },
-    "Login failed."
-  );
-}
-
-// Verify OTP (signup)
 export async function verifyOtp({ email, otp }) {
-  return safeFetch(
-    `${BASE_URL}/auth/verify-otp`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
-    },
-    "OTP verification failed."
-  );
+  const valid = validateOtp(email, otp);
+  if (!valid) {
+    throw new Error("Invalid or expired OTP.");
+  }
+
+  return {
+    verified: true,
+  };
 }
 
-export async function googleAuth(payload) {
-  return safeFetch(
-    `${BASE_URL}/auth/google`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    },
-    "Google login failed."
-  );
+export async function register({ fullName, email, password, otp }) {
+  try {
+    if (!validateOtp(email, otp)) {
+      throw new Error("Invalid or expired OTP.");
+    }
+
+    const data = await signupWithEmail({ fullName, email, password });
+    await createOrUpdateUserProfile(data.user.uid, {
+      full_name: fullName || data.user.full_name || "",
+      email: data.user.email,
+    });
+
+    const mergedUser = await ensureMergedUser(data.user);
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(mergedUser));
+
+    return {
+      token: data.token,
+      user: mergedUser,
+    };
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Registration failed."));
+  }
+}
+
+export async function login({ email, password }) {
+  try {
+    const data = await loginWithEmail({ email, password });
+    const mergedUser = await ensureMergedUser(data.user);
+
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(mergedUser));
+
+    return {
+      token: data.token,
+      user: mergedUser,
+    };
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Login failed."));
+  }
+}
+
+export async function googleAuth() {
+  try {
+    const data = await loginWithGoogle();
+    await createOrUpdateUserProfile(data.user.uid, {
+      full_name: data.user.full_name || "",
+      email: data.user.email,
+      photo_url: data.user.photo_url || "",
+    });
+
+    const mergedUser = await ensureMergedUser(data.user);
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("user", JSON.stringify(mergedUser));
+
+    return {
+      token: data.token,
+      user: mergedUser,
+    };
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Google login failed."));
+  }
 }
 
 export async function getCurrentUser() {
-  return safeFetch(
-    `${BASE_URL}/auth/me`,
-    {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${getToken()}`,
-      },
-    },
-    "Session validation failed."
-  );
+  try {
+    const user = await getCurrentAuthUser();
+    if (!user) {
+      throw new Error("Session expired. Please login again.");
+    }
+
+    const mergedUser = await ensureMergedUser(user);
+    return { user: mergedUser };
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Session validation failed."));
+  }
+}
+
+export async function logout() {
+  try {
+    await logoutUser();
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Logout failed."));
+  }
+}
+
+// ==================== PROFILE ====================
+
+export async function saveProfile(profileForm) {
+  try {
+    const user = await requireUser();
+    const saved = await createOrUpdateUserProfile(user.uid, profileForm);
+    const merged = {
+      ...(await ensureMergedUser(user)),
+      ...saved,
+    };
+    localStorage.setItem("user", JSON.stringify(merged));
+    return { user: merged };
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Failed to update profile."));
+  }
+}
+
+// ==================== CHAT ====================
+
+function buildChatReply({ message, analysisData }) {
+  const normalized = message.toLowerCase();
+  const missing = analysisData?.missing_skills || [];
+  const found = analysisData?.found_skills || [];
+  const role = analysisData?.role || analysisData?.target_role || "your target role";
+
+  if (normalized.includes("ats")) {
+    return `To improve ATS score for ${role}, use role keywords in project bullets, add measurable outcomes, and keep section headings standard (Summary, Skills, Experience, Projects).`;
+  }
+
+  if (normalized.includes("missing") || normalized.includes("gap")) {
+    if (!missing.length) {
+      return "Great news: I do not see critical missing skills in your latest analysis. Focus on stronger impact bullets and quantified achievements.";
+    }
+    return `Top missing skills are ${missing.slice(0, 4).join(", ")}. Add one project bullet for each using action + tool + measurable result format.`;
+  }
+
+  if (normalized.includes("project")) {
+    return `Build 2 portfolio projects for ${role}: one core implementation project and one production-style project with auth, CRUD, and deployment. Mention stack and outcomes clearly.`;
+  }
+
+  if (found.length) {
+    return `You already show strengths in ${found.slice(0, 4).join(", ")}. Next step: rewrite bullets to quantify impact and include role-specific keywords from job descriptions.`;
+  }
+
+  return "Start by tailoring your summary to the target role, then align skills and project bullets with role-specific keywords for better recruiter and ATS matching.";
+}
+
+export async function chatWithAssistant({ message, analysisData }) {
+  try {
+    const user = await requireUser();
+    await addChatMessage(user.uid, { role: "user", content: message });
+
+    const reply = buildChatReply({ message, analysisData });
+    await addChatMessage(user.uid, { role: "assistant", content: reply });
+
+    return { reply };
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Unable to process chat message."));
+  }
+}
+
+export async function getChatHistory() {
+  try {
+    const user = await requireUser();
+    return await getChatMessages(user.uid, 40);
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Unable to load chat history."));
+  }
 }
 
 // ==================== FORGOT PASSWORD ====================
 
-// Send OTP
 export async function forgotPasswordSendOtp({ email }) {
-  return safeFetch(
-    `${BASE_URL}/auth/forgot-password/send-otp`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    },
-    "Failed to send OTP."
-  );
+  try {
+    const otp = createOtp(`forgot_${email}`);
+    return {
+      message: "OTP generated for password reset.",
+      otp,
+    };
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Failed to send reset email."));
+  }
 }
 
-// Verify OTP
 export async function forgotPasswordVerifyOtp({ email, otp }) {
-  return safeFetch(
-    `${BASE_URL}/auth/forgot-password/verify-otp`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, otp }),
-    },
-    "OTP verification failed."
-  );
+  const valid = validateOtp(`forgot_${email}`, otp);
+  if (!valid) {
+    throw new Error("Invalid or expired OTP.");
+  }
+
+  return {
+    reset_token: "firebase-email-reset",
+  };
 }
 
-// Reset Password
-export async function resetPassword({ email, resetToken, newPassword }) {
-  return safeFetch(
-    `${BASE_URL}/auth/forgot-password/reset`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email,
-        reset_token: resetToken,
-        new_password: newPassword,
-      }),
-    },
-    "Password reset failed."
-  );
+export async function resetPassword({ email }) {
+  try {
+    await requestPasswordReset(email);
+    return {
+      success: true,
+      message: "Use the reset link sent to your email to complete password update.",
+    };
+  } catch (err) {
+    throw new Error(toUserMessage(err, "Password reset failed."));
+  }
 }

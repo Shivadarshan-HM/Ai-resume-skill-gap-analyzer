@@ -1,15 +1,10 @@
 import { useMemo, useRef, useEffect, useState } from "react";
 import { motion } from "framer-motion";
-
-const BASE_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://ai-resume-skill-gap-analyzer-axsq.onrender.com";
-
-function getToken() {
-  return localStorage.getItem("token");
-}
+import { chatWithAssistant, getChatHistory } from "../services/api";
+import { useAuth } from "../hooks/useAuth";
 
 function ChatAssistant({ analysisData }) {
+  const { user } = useAuth();
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState([
@@ -20,6 +15,34 @@ function ChatAssistant({ analysisData }) {
     }
   ]);
   const bottomRef = useRef(null);
+
+  useEffect(() => {
+    if (!user?.uid) return;
+
+    async function loadHistory() {
+      try {
+        const history = await getChatHistory();
+        if (!history.length) return;
+
+        setMessages([
+          {
+            id: 1,
+            role: "assistant",
+            content: "Hi! Ask anything about your resume and I will guide you with practical suggestions."
+          },
+          ...history.map((item) => ({
+            id: item.id || `${item.role}-${Math.random()}`,
+            role: item.role,
+            content: item.content,
+          })),
+        ]);
+      } catch {
+        // Keep default greeting if history fails.
+      }
+    }
+
+    loadHistory();
+  }, [user?.uid]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -43,25 +66,15 @@ function ChatAssistant({ analysisData }) {
     setLoading(true);
 
     try {
-      const res = await fetch(`${BASE_URL}/chat`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${getToken()}`
-        },
-        body: JSON.stringify({
-          message: trimmed,
-          analysis_data: contextSummary,
-          history: messages.filter(m => m.role !== "assistant" || m.id !== 1).map(m => ({ role: m.role, content: m.content }))
-        })
+      const data = await chatWithAssistant({
+        message: trimmed,
+        analysisData: contextSummary,
       });
-
-      const data = await res.json();
       const reply =
         data.reply ||
         data.error ||
         data.msg ||
-        (res.status === 401 ? "Please login again to use chat." : "Sorry, I could not process that.");
+        "Sorry, I could not process that.";
 
       setMessages((prev) => [
         ...prev,
@@ -70,7 +83,7 @@ function ChatAssistant({ analysisData }) {
     } catch {
       setMessages((prev) => [
         ...prev,
-        { id: Date.now() + 1, role: "assistant", content: "Connection error. Make sure backend is running." }
+        { id: Date.now() + 1, role: "assistant", content: "Connection error. Please try again." }
       ]);
     } finally {
       setLoading(false);

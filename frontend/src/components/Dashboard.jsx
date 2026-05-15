@@ -9,6 +9,7 @@ import Resources from "../pages/Resources";
 import Sidebar from "./Sidebar";
 import SkillRoadmap from "./SkillRoadmap";
 import StatsCard from "./StatsCard";
+import { saveProfile } from "../services/api";
 
 const ROLE_OPTIONS = [
   "Frontend Developer",
@@ -26,10 +27,6 @@ const ROLE_OPTIONS = [
   "Blockchain Developer",
   "Game Developer",
 ];
-const API_URL =
-  process.env.REACT_APP_API_URL ||
-  "https://ai-resume-skill-gap-analyzer-axsq.onrender.com";
-
 const ROUTE_LABELS = {
   "/dashboard": "Overview",
   "/dashboard/analyze": "Analyze Resume",
@@ -151,28 +148,9 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
     setProfileError("");
     setProfileSuccess("");
 
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setProfileError("Session expired. Please login again.");
-      return;
-    }
-
     setProfileSaving(true);
     try {
-      const res = await fetch(`${API_URL}/auth/profile`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(profileForm),
-      });
-
-      const data = await res.json();
-      if (!res.ok) {
-        setProfileError(data.error || "Failed to update profile.");
-        return;
-      }
+      const data = await saveProfile(profileForm);
 
       if (data.user && onUserUpdate) {
         onUserUpdate(data.user);
@@ -182,8 +160,8 @@ function Dashboard({ user, onUserUpdate, onLogout, analysisData, setAnalysisData
       setProfileSuccess("Profile saved successfully! ✅");
       setEditMode(false);
       logActivity("Profile bio data updated");
-    } catch {
-      setProfileError("Unable to connect to server.");
+    } catch (err) {
+      setProfileError(err.message || "Unable to save profile.");
     } finally {
       setProfileSaving(false);
     }

@@ -3,27 +3,11 @@ import { motion } from "framer-motion";
 import { Link, useLocation } from "react-router-dom";
 import { googleAuth, login, register, sendOtp } from "../services/api";
 
-const GOOGLE_CLIENT_ID = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
-
 const TRUST_POINTS = [
   "OTP-secured signup",
   "AI resume-role matching",
   "ATS-friendly optimization guidance",
 ];
-
-function loadGoogleScript(callback) {
-  if (window.google) {
-    callback();
-    return;
-  }
-
-  const script = document.createElement("script");
-  script.src = "https://accounts.google.com/gsi/client";
-  script.async = true;
-  script.defer = true;
-  script.onload = callback;
-  document.body.appendChild(script);
-}
 
 function Login({ onLoginSuccess }) {
   const [isRegister, setIsRegister] = useState(true);
@@ -38,18 +22,6 @@ function Login({ onLoginSuccess }) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const location = useLocation();
-
-  useEffect(() => {
-    if (!GOOGLE_CLIENT_ID) return;
-
-    loadGoogleScript(() => {
-      window.google?.accounts?.id?.initialize({
-        client_id: GOOGLE_CLIENT_ID,
-        callback: handleGoogleResponse,
-        use_fedcm_for_prompt: false,
-      });
-    });
-  }, []);
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
@@ -73,12 +45,12 @@ function Login({ onLoginSuccess }) {
     }
   }, [location.search]);
 
-  async function handleGoogleResponse(response) {
+  async function handleGoogleClick() {
     setOauthLoading(true);
     setError("");
 
     try {
-      const data = await googleAuth({ token: response.credential });
+      const data = await googleAuth();
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -91,50 +63,6 @@ function Login({ onLoginSuccess }) {
     } finally {
       setOauthLoading(false);
     }
-  }
-
-  function handleGoogleClick() {
-    if (!GOOGLE_CLIENT_ID) {
-      setError("Google Client ID not configured.");
-      return;
-    }
-
-    const client = window.google?.accounts?.oauth2?.initTokenClient({
-      client_id: GOOGLE_CLIENT_ID,
-      scope: "email profile openid",
-      callback: async (tokenResponse) => {
-        if (tokenResponse.error) {
-          setError("Google login failed.");
-          return;
-        }
-
-        setOauthLoading(true);
-        try {
-          const userInfoRes = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
-            headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
-          });
-          const userInfo = await userInfoRes.json();
-          const data = await googleAuth({
-            access_token: tokenResponse.access_token,
-            email: userInfo.email,
-            name: userInfo.name,
-          });
-
-          localStorage.setItem("token", data.token);
-          localStorage.setItem("user", JSON.stringify(data.user));
-          setSuccess("Google login successful! Redirecting...");
-          setTimeout(() => {
-            if (onLoginSuccess) onLoginSuccess(data.user);
-          }, 800);
-        } catch (err) {
-          setError(err.message || "Unable to connect to server.");
-        } finally {
-          setOauthLoading(false);
-        }
-      },
-    });
-
-    client?.requestAccessToken();
   }
 
   async function handleSendOtp(event) {
