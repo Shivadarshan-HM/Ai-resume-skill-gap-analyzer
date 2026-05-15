@@ -8,10 +8,10 @@ cd functions
 npm install
 ```
 
-2. Configure API keys securely (example for OpenAI):
+2. Configure API keys securely (example for Gemini / Google Generative API):
 
 ```bash
-firebase functions:config:set openai.key="YOUR_OPENAI_API_KEY"
+firebase functions:config:set google.api_key="YOUR_GEMINI_API_KEY"
 ```
 
 3. Deploy functions:

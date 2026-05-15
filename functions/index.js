@@ -2,18 +2,70 @@ const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const { Storage } = require("@google-cloud/storage");
 const pdf = require("pdf-parse");
-const { Configuration, OpenAIApi } = require("openai");
+const fetch = require("node-fetch");
 
 admin.initializeApp();
 const db = admin.firestore();
 const storage = new Storage();
 
-// Read API key from functions config or environment
-const OPENAI_KEY = functions.config()?.openai?.key || process.env.OPENAI_API_KEY || null;
-let openai = null;
-if (OPENAI_KEY) {
-  const configuration = new Configuration({ apiKey: OPENAI_KEY });
-  openai = new OpenAIApi(configuration);
+// Read Gemini API key from functions config or environment
+const GEMINI_KEY = functions.config()?.google?.api_key || process.env.GOOGLE_API_KEY || null;
+
+async function callGemini(prompt) {
+  const apiKey = GEMINI_KEY;
+  if (!apiKey) throw new Error("Gemini API key not configured on Functions.");
+
+  const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent";
+  const body = {
+    contents: [
+      {
+        parts: [
+          {
+            text: prompt,
+          },
+        ],
+      },
+    ],
+  };
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-goog-api-key": apiKey,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const txt = await res.text();
+    throw new Error(`Gemini error: ${res.status} ${txt}`);
+  }
+
+  const json = await res.json();
+
+  // Try to extract text from common response shapes
+  try {
+    const candidate = json?.candidates?.[0];
+    if (candidate && candidate?.content) {
+      const parts = candidate.content;
+      if (Array.isArray(parts)) {
+        return parts.map((p) => p?.text || "").join("");
+      }
+      return String(candidate.content);
+    }
+
+    const output = json?.outputs?.[0];
+    if (output && output?.content) {
+      const parts = output.content;
+      if (Array.isArray(parts)) return parts.map((p) => p?.text || "").join("");
+      return String(output.content);
+    }
+  } catch (e) {
+    // fall through
+  }
+
+  return JSON.stringify(json);
 }
 
 async function extractTextFromStorage(bucketName, filePath) {
@@ -81,10 +133,10 @@ exports.processResume = functions.firestore
 
       let aiOutput = null;
       try {
-        const raw = await callOpenAI(prompt);
+        const raw = await callGemini(prompt);
         aiOutput = raw;
       } catch (err) {
-        console.error("OpenAI call failed:", err);
+        console.error("Gemini call failed:", err);
         aiOutput = null;
       }
 
@@ -165,7 +217,7 @@ exports.processChat = functions.firestore
       // Simple prompt: include user message + context
       const chatPrompt = `You are an AI career assistant. Use the analysis context to inform your reply.\n\nContext:\n${contextText}\n\nUser message:\n${data.content}`;
 
-      const raw = await callOpenAI(chatPrompt);
+      const raw = await callGemini(chatPrompt);
       const replyText = raw || "I'm sorry, I couldn't generate a reply right now.";
 
       // Write assistant message
