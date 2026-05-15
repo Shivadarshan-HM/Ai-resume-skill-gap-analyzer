@@ -17,4 +17,7 @@
       }
     ]
   }
+  ,"functions": {
+    "source": "functions"
+  }
 }
