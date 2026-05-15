@@ -88,35 +88,24 @@ export async function getUserProfile(uid) {
 }
 
 export async function createResumeAnalysis(uid, payload) {
-  const textSource = `${payload.resumeText || ""} ${payload.prompt || ""}`.trim();
-  const requiredSkills = createSkillSet(payload.role);
-  const foundSkills = extractFoundSkills(textSource, requiredSkills);
-  const missingSkills = requiredSkills.filter((skill) => !foundSkills.includes(skill));
-  const matchScore = estimateScore(foundSkills, requiredSkills);
-  const suggestions = buildSuggestions(missingSkills);
+  // Create a request document for the AI processing layer (Cloud Function).
+  // The Cloud Function will listen for new documents in this collection,
+  // perform PDF/text extraction and call the AI model, then update the
+  // document with the final analysis results.
 
-  const analysis = {
+  const request = {
     uid,
     role: payload.role,
     prompt: payload.prompt || "",
     sourceFileName: payload.fileName || "",
-    summary:
-      payload.resumeText?.trim() || payload.prompt?.trim()
-        ? "Resume analyzed and matched against role requirements using Firebase-backed skill heuristics."
-        : "No resume text extracted. Uploading PDF/DOCX stores metadata; add prompt details for better matching.",
-    analysis:
-      "This result is generated client-side and stored in Firestore. You can enhance it later by adding a Cloud Function for advanced AI analysis.",
-    required_skills: requiredSkills,
-    found_skills: foundSkills,
-    missing_skills: missingSkills,
-    highlighted_skills: missingSkills.slice(0, 3),
-    suggestions,
-    match_score: matchScore,
+    resumeText: payload.resumeText || "",
+    storagePath: payload.storagePath || null,
+    status: "pending",
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   };
 
-  const added = await addDoc(collection(db, ANALYSES_COLLECTION), analysis);
+  const added = await addDoc(collection(db, ANALYSES_COLLECTION), request);
   const saved = await getDoc(added);
   return { id: saved.id, ...saved.data() };
 }

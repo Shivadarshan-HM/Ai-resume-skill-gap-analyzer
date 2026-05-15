@@ -14,6 +14,8 @@ import {
   getLatestResumeAnalysis,
   getUserProfile,
 } from "../firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { storage } from "../firebase/config";
 
 function toUserMessage(err, fallback) {
   return err?.message || fallback;
@@ -88,9 +90,20 @@ export async function analyzeResumeUpload({ file, role, prompt }) {
   try {
     const user = await requireUser();
     let resumeText = "";
+    let storagePath = null;
 
     if (file?.type?.startsWith("text/") || file?.name?.toLowerCase().endsWith(".txt")) {
       resumeText = await file.text();
+    }
+
+    // If file is a binary (PDF/DOCX) upload it to Firebase Storage so the
+    // backend AI processing can fetch and extract text server-side.
+    if (file && !(file?.type?.startsWith("text/") || file?.name?.toLowerCase().endsWith(".txt"))) {
+      const storageRef = ref(storage, `uploads/${user.uid}/${Date.now()}_${file.name}`);
+      const arrayBuffer = await file.arrayBuffer();
+      const bytes = new Uint8Array(arrayBuffer);
+      await uploadBytes(storageRef, bytes, { contentType: file.type });
+      storagePath = storageRef.fullPath;
     }
 
     const analysis = await createResumeAnalysis(user.uid, {
@@ -98,6 +111,7 @@ export async function analyzeResumeUpload({ file, role, prompt }) {
       role,
       prompt,
       fileName: file?.name || "resume-file",
+      storagePath,
     });
 
     return analysis;
